@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>imgs/icons8-qq.svg</file>
+        <file>imgs/icons8-close.svg</file>
+        <file>imgs/whiteclose.svg</file>
+        <file>imgs/close.svg</file>
+    </qresource>
+    <qresource prefix="/new/prefix1"/>
+</RCC>
