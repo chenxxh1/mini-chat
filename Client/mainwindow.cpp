@@ -18,19 +18,22 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_aggreButton_clicked()
 {
-    if(ui->aggreButton->isChecked()){
-        ui->LogButton->setStyleSheet("background-color: rgb(0, 170, 255);");
-        ui->LogButton->setEnabled(1);
+    if(ui->aggreButton->isChecked()){//判断同意隐私协议
+        ui->LogButton->setStyleSheet("background-color: rgb(0, 170, 255);");//登入按钮变为蓝色
+        ui->LogButton->setEnabled(1);//同意则登录按钮可以使用
     }else{
-         ui->LogButton->setStyleSheet("background-color: rgb(170, 233, 255);");
-        ui->LogButton->setEnabled(0);
+         ui->LogButton->setStyleSheet("background-color: rgb(170, 233, 255);");//登入按钮为灰蓝色
+        ui->LogButton->setEnabled(0);//不同意则不可以使用
     }
 }
 
 
 void MainWindow::on_LogButton_clicked()
 {
-    qDebug()<<"登录";
+    qDebug()<<"登录";//调试输出窗口打印“登录”
+    QWidget* secondwindow = new QWidget();
+    secondwindow->show();
+    this->close();
 }
 
 

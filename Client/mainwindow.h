@@ -19,11 +19,11 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_aggreButton_clicked();
+    void on_aggreButton_clicked();//处理协议与登录间的关系
 
-    void on_LogButton_clicked();
+    void on_LogButton_clicked();//处理登录按钮
 
-    void on_CloseButton_triggered();
+    void on_CloseButton_triggered();//处理关闭按钮
 
 private:
     Ui::MainWindow *ui;
