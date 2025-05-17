@@ -281,6 +281,7 @@ Makefile: ../../Client.pro ../../../../QT/6.9.0/mingw_64/mkspecs/win32-g++/qmake
 		../../../../QT/6.9.0/mingw_64/mkspecs/features/qt_config.prf \
 		../../../../QT/6.9.0/mingw_64/mkspecs/win32-g++/qmake.conf \
 		../../../../QT/6.9.0/mingw_64/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		../../../../QT/6.9.0/mingw_64/mkspecs/features/exclusive_builds.prf \
 		../../../../QT/6.9.0/mingw_64/mkspecs/features/toolchain.prf \
 		../../../../QT/6.9.0/mingw_64/mkspecs/features/default_pre.prf \
@@ -311,7 +312,6 @@ Makefile: ../../Client.pro ../../../../QT/6.9.0/mingw_64/mkspecs/win32-g++/qmake
 		../../../../QT/6.9.0/mingw_64/lib/Qt6Gui.prl \
 		../../../../QT/6.9.0/mingw_64/lib/Qt6Core.prl \
 		../../../../QT/6.9.0/mingw_64/lib/Qt6EntryPoint.prl \
-		.qmake.stash \
 		../../../../QT/6.9.0/mingw_64/mkspecs/features/build_pass.prf \
 		../../icons.qrc \
 		debug/qmake_qmake_qm_files.qrc \
@@ -528,6 +528,7 @@ Makefile: ../../Client.pro ../../../../QT/6.9.0/mingw_64/mkspecs/win32-g++/qmake
 ../../../../QT/6.9.0/mingw_64/mkspecs/features/qt_config.prf:
 ../../../../QT/6.9.0/mingw_64/mkspecs/win32-g++/qmake.conf:
 ../../../../QT/6.9.0/mingw_64/mkspecs/features/spec_post.prf:
+.qmake.stash:
 ../../../../QT/6.9.0/mingw_64/mkspecs/features/exclusive_builds.prf:
 ../../../../QT/6.9.0/mingw_64/mkspecs/features/toolchain.prf:
 ../../../../QT/6.9.0/mingw_64/mkspecs/features/default_pre.prf:
@@ -558,7 +559,6 @@ Makefile: ../../Client.pro ../../../../QT/6.9.0/mingw_64/mkspecs/win32-g++/qmake
 ../../../../QT/6.9.0/mingw_64/lib/Qt6Gui.prl:
 ../../../../QT/6.9.0/mingw_64/lib/Qt6Core.prl:
 ../../../../QT/6.9.0/mingw_64/lib/Qt6EntryPoint.prl:
-.qmake.stash:
 ../../../../QT/6.9.0/mingw_64/mkspecs/features/build_pass.prf:
 ../../icons.qrc:
 debug/qmake_qmake_qm_files.qrc:

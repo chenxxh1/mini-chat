@@ -25,6 +25,8 @@ private slots:
 
     void on_CloseButton_triggered();//处理关闭按钮
 
+    void on_RejisterButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

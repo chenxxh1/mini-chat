@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "registerwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -41,5 +42,13 @@ void MainWindow::on_CloseButton_triggered()
 {
     //qDebug()<<"close";
     this->close();
+}
+
+
+void MainWindow::on_RejisterButton_clicked()
+{
+    Register* regis = new Register;
+    this->hide();
+    regis->show();
 }
 
