@@ -18,6 +18,8 @@ public:
 private slots:
     void on_Back_clicked();
 
+    void on_Close_triggered();
+
 private:
     Ui::Register *ui;
 };
