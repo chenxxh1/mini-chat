@@ -11,17 +11,14 @@ CONFIG += c++17
 SOURCES += \
     dragevent.cpp \
     main.cpp \
-    mainwindow.cpp \
-    registerwindow.cpp
+    mainwindow.cpp
 
 HEADERS += \
     dragevent.h \
-    mainwindow.h \
-    registerwindow.h
+    mainwindow.h
 
 FORMS += \
-    mainwindow.ui \
-    registerwindow.ui
+    mainwindow.ui
 
 TRANSLATIONS += \
     Client_zh_CN.ts
