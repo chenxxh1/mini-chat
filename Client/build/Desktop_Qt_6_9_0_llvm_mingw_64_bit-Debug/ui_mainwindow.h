@@ -45,7 +45,7 @@ public:
     QLineEdit *accountEdit;
     QLineEdit *passwordEdit;
     QRadioButton *aggreButton;
-    QPushButton *RejisterButton;
+    QPushButton *RegisterButton;
     QPushButton *LogButton;
     QSpacerItem *verticalSpacer_2;
     QMenuBar *menubar;
@@ -55,7 +55,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName("MainWindow");
-        MainWindow->resize(367, 510);
+        MainWindow->resize(378, 510);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName("centralwidget");
         verticalLayout_2 = new QVBoxLayout(centralwidget);
@@ -156,12 +156,12 @@ public:
 
         verticalLayout->addWidget(aggreButton);
 
-        RejisterButton = new QPushButton(widget);
-        RejisterButton->setObjectName("RejisterButton");
-        RejisterButton->setMinimumSize(QSize(320, 40));
-        RejisterButton->setMaximumSize(QSize(320, 40));
+        RegisterButton = new QPushButton(widget);
+        RegisterButton->setObjectName("RegisterButton");
+        RegisterButton->setMinimumSize(QSize(320, 40));
+        RegisterButton->setMaximumSize(QSize(320, 40));
 
-        verticalLayout->addWidget(RejisterButton);
+        verticalLayout->addWidget(RegisterButton);
 
         LogButton = new QPushButton(widget);
         LogButton->setObjectName("LogButton");
@@ -184,7 +184,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName("menubar");
-        menubar->setGeometry(QRect(0, 0, 367, 25));
+        menubar->setGeometry(QRect(0, 0, 378, 21));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName("statusbar");
@@ -203,7 +203,7 @@ public:
         accountEdit->setPlaceholderText(QCoreApplication::translate("MainWindow", "\350\264\246\345\217\267", nullptr));
         passwordEdit->setPlaceholderText(QCoreApplication::translate("MainWindow", "\345\257\206\347\240\201", nullptr));
         aggreButton->setText(QCoreApplication::translate("MainWindow", "\345\267\262\351\230\205\350\257\273\345\271\266\345\220\214\346\204\217\346\234\215\345\212\241\345\215\217\350\256\256\345\222\214QQ\351\232\220\347\247\201\346\234\215\345\212\241", nullptr));
-        RejisterButton->setText(QCoreApplication::translate("MainWindow", "\346\263\250\345\206\214", nullptr));
+        RegisterButton->setText(QCoreApplication::translate("MainWindow", "\346\263\250\345\206\214", nullptr));
         LogButton->setText(QCoreApplication::translate("MainWindow", "\347\231\273\345\275\225", nullptr));
     } // retranslateUi
 

@@ -7,6 +7,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    r=nullptr;
     setWindowFlag(Qt::FramelessWindowHint);
     this->installEventFilter(new DragEvent(this));
     connect(ui->CloseButton,&QToolButton::clicked,this,&MainWindow::on_CloseButton_triggered);
@@ -20,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     connect(socket,&QTcpSocket::readyRead,this,&MainWindow::serverSocket);
+    connect(ui->RegisterButton,&QPushButton::clicked,this,&MainWindow::RegisterButton_clicked);
 }
 
 MainWindow::~MainWindow()
@@ -72,12 +74,17 @@ void MainWindow::on_CloseButton_triggered()
 }
 
 
-void MainWindow::on_RegisterButton_clicked()
+void MainWindow::RegisterButton_clicked()
 {
+    //QMessageBox::information(this,"提示","调用");
     this->hide();
-    Register *r =new Register(socket,this);
+    r =new Register(socket,this);
     r->show();
-    connect(r,&Register::R_close,this,[this](){this->show();});
+    connect(r,&Register::R_close,this,&MainWindow::againShow);
+}
+void MainWindow::againShow(){
+    this->show();
+    r->close();
 }
 
 void MainWindow::serverSocket(){

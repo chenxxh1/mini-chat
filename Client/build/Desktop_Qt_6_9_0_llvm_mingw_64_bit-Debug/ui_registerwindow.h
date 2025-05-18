@@ -31,11 +31,11 @@ class Ui_Register
 {
 public:
     QWidget *centralwidget;
-    QWidget *widget;
+    QWidget *layoutWidget;
     QHBoxLayout *horizontalLayout_5;
     QSpacerItem *horizontalSpacer_4;
     QToolButton *Close;
-    QWidget *widget1;
+    QWidget *layoutWidget1;
     QHBoxLayout *horizontalLayout_6;
     QSpacerItem *horizontalSpacer_7;
     QGridLayout *gridLayout;
@@ -50,11 +50,11 @@ public:
     QPushButton *Back;
     QHBoxLayout *horizontalLayout;
     QLabel *label;
-    QLineEdit *ConfirmWord;
+    QLineEdit *Name;
     QSpacerItem *horizontalSpacer;
     QHBoxLayout *horizontalLayout_2;
     QLabel *label_2;
-    QLineEdit *Name;
+    QLineEdit *ConfirmWord;
     QSpacerItem *horizontalSpacer_2;
     QSpacerItem *horizontalSpacer_8;
     QMenuBar *menubar;
@@ -68,27 +68,27 @@ public:
         Register->resize(556, 443);
         centralwidget = new QWidget(Register);
         centralwidget->setObjectName("centralwidget");
-        widget = new QWidget(centralwidget);
-        widget->setObjectName("widget");
-        widget->setGeometry(QRect(0, 0, 541, 51));
-        horizontalLayout_5 = new QHBoxLayout(widget);
+        layoutWidget = new QWidget(centralwidget);
+        layoutWidget->setObjectName("layoutWidget");
+        layoutWidget->setGeometry(QRect(0, 0, 541, 51));
+        horizontalLayout_5 = new QHBoxLayout(layoutWidget);
         horizontalLayout_5->setObjectName("horizontalLayout_5");
         horizontalLayout_5->setContentsMargins(0, 0, 0, 0);
         horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
         horizontalLayout_5->addItem(horizontalSpacer_4);
 
-        Close = new QToolButton(widget);
+        Close = new QToolButton(layoutWidget);
         Close->setObjectName("Close");
         Close->setMinimumSize(QSize(40, 40));
         Close->setMaximumSize(QSize(40, 40));
 
         horizontalLayout_5->addWidget(Close);
 
-        widget1 = new QWidget(centralwidget);
-        widget1->setObjectName("widget1");
-        widget1->setGeometry(QRect(0, 50, 541, 321));
-        horizontalLayout_6 = new QHBoxLayout(widget1);
+        layoutWidget1 = new QWidget(centralwidget);
+        layoutWidget1->setObjectName("layoutWidget1");
+        layoutWidget1->setGeometry(QRect(0, 50, 541, 321));
+        horizontalLayout_6 = new QHBoxLayout(layoutWidget1);
         horizontalLayout_6->setObjectName("horizontalLayout_6");
         horizontalLayout_6->setContentsMargins(0, 0, 0, 0);
         horizontalSpacer_7 = new QSpacerItem(58, 268, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
@@ -99,7 +99,7 @@ public:
         gridLayout->setObjectName("gridLayout");
         horizontalLayout_3 = new QHBoxLayout();
         horizontalLayout_3->setObjectName("horizontalLayout_3");
-        label_3 = new QLabel(widget1);
+        label_3 = new QLabel(layoutWidget1);
         label_3->setObjectName("label_3");
         label_3->setEnabled(true);
         label_3->setMinimumSize(QSize(80, 20));
@@ -107,7 +107,7 @@ public:
 
         horizontalLayout_3->addWidget(label_3);
 
-        PassWord = new QLineEdit(widget1);
+        PassWord = new QLineEdit(layoutWidget1);
         PassWord->setObjectName("PassWord");
         PassWord->setMinimumSize(QSize(200, 20));
         PassWord->setMaximumSize(QSize(200, 20));
@@ -123,7 +123,7 @@ public:
 
         horizontalLayout_4 = new QHBoxLayout();
         horizontalLayout_4->setObjectName("horizontalLayout_4");
-        RegisterIn = new QPushButton(widget1);
+        RegisterIn = new QPushButton(layoutWidget1);
         RegisterIn->setObjectName("RegisterIn");
         RegisterIn->setMinimumSize(QSize(50, 20));
         RegisterIn->setMaximumSize(QSize(50, 20));
@@ -138,7 +138,7 @@ public:
 
         horizontalLayout_4->addItem(horizontalSpacer_6);
 
-        Back = new QPushButton(widget1);
+        Back = new QPushButton(layoutWidget1);
         Back->setObjectName("Back");
         Back->setMinimumSize(QSize(50, 20));
         Back->setMaximumSize(QSize(50, 20));
@@ -150,19 +150,19 @@ public:
 
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setObjectName("horizontalLayout");
-        label = new QLabel(widget1);
+        label = new QLabel(layoutWidget1);
         label->setObjectName("label");
         label->setMinimumSize(QSize(80, 20));
         label->setMaximumSize(QSize(80, 20));
 
         horizontalLayout->addWidget(label);
 
-        ConfirmWord = new QLineEdit(widget1);
-        ConfirmWord->setObjectName("ConfirmWord");
-        ConfirmWord->setMinimumSize(QSize(120, 20));
-        ConfirmWord->setMaximumSize(QSize(120, 20));
+        Name = new QLineEdit(layoutWidget1);
+        Name->setObjectName("Name");
+        Name->setMinimumSize(QSize(120, 20));
+        Name->setMaximumSize(QSize(120, 20));
 
-        horizontalLayout->addWidget(ConfirmWord);
+        horizontalLayout->addWidget(Name);
 
         horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
@@ -173,19 +173,19 @@ public:
 
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setObjectName("horizontalLayout_2");
-        label_2 = new QLabel(widget1);
+        label_2 = new QLabel(layoutWidget1);
         label_2->setObjectName("label_2");
         label_2->setMinimumSize(QSize(80, 20));
         label_2->setMaximumSize(QSize(80, 20));
 
         horizontalLayout_2->addWidget(label_2);
 
-        Name = new QLineEdit(widget1);
-        Name->setObjectName("Name");
-        Name->setMinimumSize(QSize(200, 20));
-        Name->setMaximumSize(QSize(200, 20));
+        ConfirmWord = new QLineEdit(layoutWidget1);
+        ConfirmWord->setObjectName("ConfirmWord");
+        ConfirmWord->setMinimumSize(QSize(200, 20));
+        ConfirmWord->setMaximumSize(QSize(200, 20));
 
-        horizontalLayout_2->addWidget(Name);
+        horizontalLayout_2->addWidget(ConfirmWord);
 
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
@@ -204,7 +204,7 @@ public:
         Register->setCentralWidget(centralwidget);
         menubar = new QMenuBar(Register);
         menubar->setObjectName("menubar");
-        menubar->setGeometry(QRect(0, 0, 556, 17));
+        menubar->setGeometry(QRect(0, 0, 556, 25));
         menu = new QMenu(menubar);
         menu->setObjectName("menu");
         Register->setMenuBar(menubar);

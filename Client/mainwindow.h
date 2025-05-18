@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include "registerwindow.h"
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -31,10 +32,12 @@ private slots:
 
     void on_CloseButton_triggered();
 
-    void on_RegisterButton_clicked();
+    void RegisterButton_clicked();
     void serverSocket();
+    void againShow();
 private:
     Ui::MainWindow *ui;
     QTcpSocket *socket;
+    Register *r;
 };
 #endif // MAINWINDOW_H

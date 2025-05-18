@@ -22,14 +22,12 @@ Register::~Register()
 void Register::on_Back_clicked()
 {
     emit R_close();
-    this->close();
 }
 
 
 void Register::on_Close_triggered()
 {
     emit R_close();
-    this->close();
 }
 
 

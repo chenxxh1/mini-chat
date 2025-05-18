@@ -18,7 +18,6 @@ public:
 
 private slots:
     void on_Back_clicked();
-
     void on_Close_triggered();
     void on_RegisterIn_clicked();
 

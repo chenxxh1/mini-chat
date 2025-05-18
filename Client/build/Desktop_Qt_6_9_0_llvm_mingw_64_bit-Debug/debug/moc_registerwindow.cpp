@@ -6,7 +6,7 @@
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include "../../../../../Git/mini-chat/Client/registerwindow.h"
+#include "../../../registerwindow.h"
 #include <QtCore/qmetatype.h>
 
 #include <QtCore/qtmochelpers.h>
@@ -39,16 +39,22 @@ template <> constexpr inline auto Register::qt_create_metaobjectdata<qt_meta_tag
     namespace QMC = QtMocConstants;
     QtMocHelpers::StringRefStorage qt_stringData {
         "Register",
-        "on_Back_clicked",
+        "R_close",
         "",
-        "on_Close_triggered"
+        "on_Back_clicked",
+        "on_Close_triggered",
+        "on_RegisterIn_clicked"
     };
 
     QtMocHelpers::UintData qt_methods {
+        // Signal 'R_close'
+        QtMocHelpers::SignalData<void()>(1, 2, QMC::AccessPublic, QMetaType::Void),
         // Slot 'on_Back_clicked'
-        QtMocHelpers::SlotData<void()>(1, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'on_Close_triggered'
         QtMocHelpers::SlotData<void()>(3, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'on_Close_triggered'
+        QtMocHelpers::SlotData<void()>(4, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'on_RegisterIn_clicked'
+        QtMocHelpers::SlotData<void()>(5, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -72,12 +78,17 @@ void Register::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
     auto *_t = static_cast<Register *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: _t->on_Back_clicked(); break;
-        case 1: _t->on_Close_triggered(); break;
+        case 0: _t->R_close(); break;
+        case 1: _t->on_Back_clicked(); break;
+        case 2: _t->on_Close_triggered(); break;
+        case 3: _t->on_RegisterIn_clicked(); break;
         default: ;
         }
     }
-    (void)_a;
+    if (_c == QMetaObject::IndexOfMethod) {
+        if (QtMocHelpers::indexOfMethod<void (Register::*)()>(_a, &Register::R_close, 0))
+            return;
+    }
 }
 
 const QMetaObject *Register::metaObject() const
@@ -99,15 +110,21 @@ int Register::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 2)
+        if (_id < 4)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        _id -= 4;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 2)
+        if (_id < 4)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 2;
+        _id -= 4;
     }
     return _id;
+}
+
+// SIGNAL 0
+void Register::R_close()
+{
+    QMetaObject::activate(this, &staticMetaObject, 0, nullptr);
 }
 QT_WARNING_POP
