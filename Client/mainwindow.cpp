@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "dragevent.h"
+#include "registerwindow.h"
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -38,13 +39,6 @@ void MainWindow::on_aggreButton_clicked()
     }
 }
 
-
-#include <QJsonObject>
-#include <QJsonDocument>
-#include <QByteArray>
-#include <QTcpSocket>
-#include <QDebug>
-
 void MainWindow::on_LogButton_clicked() // 登录
 {
     QString account = ui->accountEdit->text();
@@ -80,27 +74,10 @@ void MainWindow::on_CloseButton_triggered()
 
 void MainWindow::on_RegisterButton_clicked()
 {
-    QString account = ui->accountEdit->text();
-    QString password = ui->passwordEdit->text();
-
-    // 创建一个 JSON 对象来存储账号和密码
-    QJsonObject jsonObject;
-    jsonObject["account"] = account;
-    jsonObject["password"] = password;
-    jsonObject["type"]="register";//数据类型
-    jsonObject["senderIp"]=socket->localAddress().toString();
-    jsonObject["senderPort"]=QString::number(socket->localPort());
-    jsonObject["receiverIp"]=socket->peerAddress().toString();
-    jsonObject["receiverPort"]=QString::number(socket->peerPort());
-    // 将 JSON 对象转换为 QByteArray
-    QJsonDocument document(jsonObject);
-    QByteArray data = document.toJson();
-
-    // 打印调试信息
-    qDebug() << "Sending data:" << data;
-
-    // 发送数据
-    socket->write(data);
+    this->hide();
+    Register *r =new Register(socket,this);
+    r->show();
+    connect(r,&Register::R_close,this,[this](){this->show();});
 }
 
 void MainWindow::serverSocket(){
@@ -111,8 +88,12 @@ void MainWindow::serverSocket(){
         QString type = jsonObject.value("type").toString();
         if(type=="register_response"){
             QString status =jsonObject.value("status").toString();
-            if(status=="success")
-                QMessageBox::information(this,"提示","注册成功");
+            if(status=="success"){
+                QString account =jsonObject.value("account").toString();
+                QString inf =QString("注册成功,账号:%1").arg(account);
+                QMessageBox::
+                    information(this,"提示",inf);
+            }
             else
                 QMessageBox::warning(this,"提示","注册失败");
         }else if(type=="login_response"){

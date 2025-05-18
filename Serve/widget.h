@@ -23,6 +23,7 @@ class Widget : public QWidget
 public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
+    bool isAccountExists(QString account);//查询账号是否存在
 public slots:
     void newClient();
     void newMessageReciver(QByteArray byte,QTcpSocket *socket);//处理信息

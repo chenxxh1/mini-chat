@@ -1,6 +1,7 @@
 #include "widget.h"
 #include "ui_widget.h"
 #include "mythread.h"
+#include <QRandomGenerator>
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
@@ -25,6 +26,17 @@ Widget::Widget(QWidget *parent)
 Widget::~Widget()
 {
     delete ui;
+}
+bool Widget::isAccountExists(QString account){
+    QSqlQuery query;
+    query.prepare("SELECT 1 FROM users WHERE account = :account"); // 查询常量值1，而不是密码
+    query.bindValue(":account", account);
+    if(query.exec()){
+        return query.next(); // 如果找到了匹配的记录，返回 true，否则返回 false
+    } else {
+        qDebug() << "Query failed:" << query.lastError().text(); // 记录错误信息
+        return false; // 查询失败，返回 false
+    }
 }
 void Widget::newClient(){
     QTcpSocket *newsocket =server->nextPendingConnection();
@@ -84,7 +96,13 @@ void Widget::newMessageReciver(QByteArray byte,QTcpSocket *socket){
             responseData = QJsonDocument(response).toJson();
             socket->write(responseData);
         }else if(type=="register"){
-            QString account = jsonObject.value("account").toString();
+
+            QString account = QString::number(QRandomGenerator::global()->bounded(1000000000000ll)+10000000);
+            while(isAccountExists(account)){
+                qDebug()<<account;
+                account = QString::number(QRandomGenerator::global()->bounded(1000000000000ll)+10000000);
+            }
+            QString nickname =jsonObject.value("nickname").toString();
             QString password = jsonObject.value("password").toString();
             QString Seip =jsonObject.value("senderIp").toString();
             QString Seport=jsonObject.value("senderPort").toString();
@@ -93,23 +111,26 @@ void Widget::newMessageReciver(QByteArray byte,QTcpSocket *socket){
             ui->messageList->addItem(message);
 
             QSqlQuery query;
-            query.prepare("INSERT INTO users (account, password) VALUES (:account, :password)");
-
-            // 绑定参数
+            query.prepare("INSERT INTO users (account, password, nickname) VALUES (:account, :password, :nickname)");
             query.bindValue(":account", account);
             query.bindValue(":password", password);
+            query.bindValue(":nickname", nickname);
             QJsonObject response;
             response["type"] = "register_response";
             if (query.exec()) {
                 //注册成功
-                QString successMessage = QString("Registration successful: Account: %1").arg(account);
+                QString successMessage = QString("Registration successful: Account: %1, Nickname: %2").arg(account, nickname);
                 ui->messageList->addItem(successMessage);
+
+                // 构造成功响应消息
                 response["status"] = "success";
                 response["message"] = "Registration successful";
+                response["account"] = account; // 返回生成的账号
             } else {
-                QString errorMessage = QString("Registration failed: Account: %1, Error: %2")
-                .arg(account, query.lastError().text());
+                QString errorMessage = QString("Registration failed: Error: %1")
+                .arg(query.lastError().text());
                 ui->messageList->addItem(errorMessage);
+                response["type"] = "register_response";
                 response["status"] = "failure";
                 response["message"] = query.lastError().text();
             }

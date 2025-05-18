@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -58,7 +58,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -228,7 +228,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="ConfirmWord">
+          <widget class="QLineEdit" name="Name">
            <property name="minimumSize">
             <size>
              <width>120</width>
@@ -280,7 +280,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="Name">
+          <widget class="QLineEdit" name="ConfirmWord">
            <property name="minimumSize">
             <size>
              <width>200</width>
@@ -334,7 +334,7 @@
      <x>0</x>
      <y>0</y>
      <width>556</width>
-     <height>17</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
