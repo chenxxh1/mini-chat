@@ -15,8 +15,10 @@ MainWindow::MainWindow(QWidget *parent)
         QMessageBox::information(this,"提示","连接服务器成功");
     });
     connect(socket,&QTcpSocket::disconnected,this,[this](){
-        QMessageBox::warning(this,"警告","连接服务器失败");
+        QMessageBox::warning(this,"警告","服务器断开");
     });
+
+    connect(socket,&QTcpSocket::readyRead,this,&MainWindow::serverSocket);
 }
 
 MainWindow::~MainWindow()
@@ -37,13 +39,34 @@ void MainWindow::on_aggreButton_clicked()
 }
 
 
-void MainWindow::on_LogButton_clicked()//登录
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QByteArray>
+#include <QTcpSocket>
+#include <QDebug>
+
+void MainWindow::on_LogButton_clicked() // 登录
 {
-    QString account =ui->accountEdit->text();
-    QString password =ui->passwordEdit->text();
-    QString accInfo =QString("account:%1 password:%2").arg(account,password);
-    qDebug()<<accInfo;
-    QByteArray data=accInfo.toUtf8();
+    QString account = ui->accountEdit->text();
+    QString password = ui->passwordEdit->text();
+
+    // 创建一个 JSON 对象来存储账号和密码
+    QJsonObject jsonObject;
+    jsonObject["account"] = account;
+    jsonObject["password"] = password;
+    jsonObject["type"]="login";//数据类型
+    jsonObject["senderIp"]=socket->localAddress().toString();
+    jsonObject["senderPort"]=QString::number(socket->localPort());
+    jsonObject["receiverIp"]=socket->peerAddress().toString();
+    jsonObject["receiverPort"]=QString::number(socket->peerPort());
+    // 将 JSON 对象转换为 QByteArray
+    QJsonDocument document(jsonObject);
+    QByteArray data = document.toJson();
+
+    // 打印调试信息
+    qDebug() << "Sending data:" << data;
+
+    // 发送数据
     socket->write(data);
 }
 
@@ -52,5 +75,51 @@ void MainWindow::on_CloseButton_triggered()
 {
     //qDebug()<<"close";
     this->close();
+}
+
+
+void MainWindow::on_RegisterButton_clicked()
+{
+    QString account = ui->accountEdit->text();
+    QString password = ui->passwordEdit->text();
+
+    // 创建一个 JSON 对象来存储账号和密码
+    QJsonObject jsonObject;
+    jsonObject["account"] = account;
+    jsonObject["password"] = password;
+    jsonObject["type"]="register";//数据类型
+    jsonObject["senderIp"]=socket->localAddress().toString();
+    jsonObject["senderPort"]=QString::number(socket->localPort());
+    jsonObject["receiverIp"]=socket->peerAddress().toString();
+    jsonObject["receiverPort"]=QString::number(socket->peerPort());
+    // 将 JSON 对象转换为 QByteArray
+    QJsonDocument document(jsonObject);
+    QByteArray data = document.toJson();
+
+    // 打印调试信息
+    qDebug() << "Sending data:" << data;
+
+    // 发送数据
+    socket->write(data);
+}
+
+void MainWindow::serverSocket(){
+    QByteArray byte =socket->readAll();
+    QJsonDocument document =QJsonDocument::fromJson(byte);
+    if(!document.isNull()&&document.isObject()){
+        QJsonObject jsonObject =document.object();
+        QString type = jsonObject.value("type").toString();
+        if(type=="register_response"){
+            QString status =jsonObject.value("status").toString();
+            if(status=="success")
+                QMessageBox::information(this,"提示","注册成功");
+            else
+                QMessageBox::warning(this,"提示","注册失败");
+        }else if(type=="login_response"){
+            QString status =jsonObject.value("status").toString();
+            QString message =jsonObject.value("message").toString();
+            QMessageBox::information(this,"提示",message);
+        }
+    }
 }
 

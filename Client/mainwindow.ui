@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>367</width>
+    <width>378</width>
     <height>510</height>
    </rect>
   </property>
@@ -234,7 +234,7 @@ QPushButton#LogButton{
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="RejisterButton">
+          <widget class="QPushButton" name="RegisterButton">
            <property name="minimumSize">
             <size>
              <width>320</width>
@@ -299,8 +299,8 @@ QPushButton#LogButton{
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>367</width>
-     <height>25</height>
+     <width>378</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>

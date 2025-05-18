@@ -3,10 +3,13 @@
 
 #include <QWidget>
 #include <QTcpServer>
-#include "mythread.h"
 #include <QSqlDatabase>
+#include <QSqlQuery>
 #include <QMessageBox>
 #include <QTcpSocket>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QSqlError>
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class Widget;
@@ -22,7 +25,8 @@ public:
     ~Widget();
 public slots:
     void newClient();
-    void newMessageReciver(QByteArray byte);//处理信息
+    void newMessageReciver(QByteArray byte,QTcpSocket *socket);//处理信息
+    void disClient(QByteArray byte);
 
 private:
     Ui::Widget *ui;

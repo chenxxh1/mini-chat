@@ -7,6 +7,8 @@
 #include <QRegularExpressionMatch>
 #include <QTcpSocket>//网络
 #include <QMessageBox>
+#include <QJsonObject>
+#include <QJsonDocument>
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -28,6 +30,8 @@ private slots:
 
     void on_CloseButton_triggered();
 
+    void on_RegisterButton_clicked();
+    void serverSocket();
 private:
     Ui::MainWindow *ui;
     QTcpSocket *socket;

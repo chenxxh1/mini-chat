@@ -12,9 +12,11 @@ public:
     explicit Mythread(QTcpSocket *s);
     void run();
 signals:
-    void sendToWidget(QByteArray byte);
+    void sendToWidget(QByteArray byte,QTcpSocket *s);
+    void clientDisconnected(QByteArray byte);
 public slots:
     void clientInfo();
+    void handleDisconnected();
 private:
     QTcpSocket *socket;
 signals:
