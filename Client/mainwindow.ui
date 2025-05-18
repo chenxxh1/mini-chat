@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>367</width>
+    <width>372</width>
     <height>510</height>
    </rect>
   </property>
@@ -299,8 +299,8 @@ QPushButton#LogButton{
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>367</width>
-     <height>25</height>
+     <width>372</width>
+     <height>17</height>
     </rect>
    </property>
   </widget>

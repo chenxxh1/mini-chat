@@ -1,3 +1,5 @@
+//实现登陆界面的拖动效果
+
 #ifndef DRAGEVENT_H
 #define DRAGEVENT_H
 
