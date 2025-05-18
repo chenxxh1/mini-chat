@@ -4,6 +4,10 @@
 #include <QMainWindow>
 #include <QDebug>
 #include "dragevent.h"
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+#include <QTcpSocket>//网络
+#include <QMessageBox>
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -27,5 +31,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    QTcpSocket *socket;
 };
 #endif // MAINWINDOW_H
