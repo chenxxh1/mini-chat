@@ -100,11 +100,15 @@ void MainWindow::serverSocket(){
                 QString inf =QString("注册成功,账号:%1").arg(account);
                 QMessageBox::
                     information(this,"提示",inf);
+                //返回登录界面
+                r->close();
+                ui->accountEdit->setText(account);
+                this->show();
             }
             else
                 QMessageBox::warning(this,"提示","注册失败");
         }else if(type=="login_response"){
-            QString status =jsonObject.value("status").toString();
+            //QString status =jsonObject.value("status").toString();
             QString message =jsonObject.value("message").toString();
             QMessageBox::information(this,"提示",message);
         }
