@@ -1,6 +1,5 @@
 #include "widget.h"
 #include "ui_widget.h"
-#include "mythread.h"
 #include <QRandomGenerator>
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -26,6 +25,7 @@ Widget::Widget(QWidget *parent)
 Widget::~Widget()
 {
     delete ui;
+    delete server;
 }
 bool Widget::isAccountExists(QString account){
     QSqlQuery query;
@@ -49,7 +49,8 @@ void Widget::newClient(){
     connect(t,&Mythread::sendToWidget,this,&Widget::newMessageReciver);
     connect(t,&Mythread::clientDisconnected,this,&Widget::disClient);
 }
-void Widget::newMessageReciver(QByteArray byte,QTcpSocket *socket){
+void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
+    QTcpSocket *socket =currentThread->getSocket();
     //回显数据
     QJsonObject response;
     QByteArray responseData;
@@ -68,17 +69,30 @@ void Widget::newMessageReciver(QByteArray byte,QTcpSocket *socket){
 
             ui->messageList->addItem(message);
             QSqlQuery query;
-            query.prepare("SELECT password FROM users WHERE account = :account");
+            query.prepare("SELECT * FROM users WHERE account = :account");
             query.bindValue(":account", account);
 
             if(query.exec()){
                 response["type"] = "login_response";//消息类型
                 if(query.next()){
-                    QString storePassword =query.value(0).toString();
+                    int storeId = query.value(0).toInt();
+                    QString storeAccount = query.value(1).toString();
+                    QString storePassword = query.value(2).toString();
+                    QString snickName = query.value(3).toString();
+
+                    QJsonObject jsonObject;
+                    jsonObject["id"] = storeId;
+                    jsonObject["account"] = storeAccount;
+                    jsonObject["password"] = storePassword;
+                    jsonObject["nickname"] = snickName;
                     if(storePassword==password){
                         //密码正确
                         response["status"] = "success";
                         response["message"] = "Login successful";
+
+                        QJsonDocument jd(jsonObject);
+                        currentThread->setJO(jsonObject);
+                        threadInfo[jd.toJson(QJsonDocument::Compact)]=currentThread;//将登录成功的信息加入线程信息
                     }else{
                         //密码错误
                         response["status"] = "failure";
@@ -140,7 +154,37 @@ void Widget::newMessageReciver(QByteArray byte,QTcpSocket *socket){
         }
     }
 }
-void Widget::disClient(QByteArray byte){
+void Widget::disClient(QByteArray byte,Mythread *t){
     QString message =QString(byte);
     ui->messageList->addItem(message);
+    QJsonObject jsonObject =t->getJO();
+    QJsonDocument jsonDocument(jsonObject);
+    threadInfo.remove(jsonDocument.toJson(QJsonDocument::Compact));
+    //qDebug()<<account;
 }
+
+void Widget::on_accountpushButton_clicked()
+{
+    qDebug()<<__func__;
+    ui->accountList->clear();
+    for (auto i = threadInfo.begin(); i != threadInfo.end(); ++i) {
+        // 获取账户名和线程指针
+        QJsonObject json =QJsonDocument::fromJson(i.key().toUtf8()).object();
+        //Mythread* currentThread = i.value();
+        // 创建一个列表项
+        QListWidgetItem *item = new QListWidgetItem();
+        int ID =json["id"].toInt();
+        QString Account =json["account"].toString();
+        QString Nickname =json["nickname"].toString();
+        // 设置列表项的文本
+        QString text = QString("ID: %1, Account: %2, Nickname: %3").arg(ID).arg(Account,Nickname);
+        item->setText(text);
+
+        // 将列表项添加到 QListWidget
+        ui->accountList->addItem(item);
+
+        // 将列表项添加到 QListWidget
+        ui->accountList->addItem(item);
+    }
+}
+

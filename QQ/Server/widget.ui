@@ -22,7 +22,17 @@
     </widget>
    </item>
    <item>
+    <widget class="QPushButton" name="accountpushButton">
+     <property name="text">
+      <string>显示当前在线账号</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QListWidget" name="messageList"/>
+   </item>
+   <item>
+    <widget class="QListWidget" name="accountList"/>
    </item>
   </layout>
  </widget>

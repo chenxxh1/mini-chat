@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     dragevent.cpp \
+    index.cpp \
     main.cpp \
     mainwindow.cpp \
     registerwindow.cpp \
@@ -17,11 +18,13 @@ SOURCES += \
 
 HEADERS += \
     dragevent.h \
+    index.h \
     mainwindow.h \
     registerwindow.h \
     registerwindow.h
 
 FORMS += \
+    index.ui \
     mainwindow.ui \
     registerwindow.ui \
     registerwindow.ui \
