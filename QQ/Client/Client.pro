@@ -14,7 +14,6 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     registerwindow.cpp \
-    registerwindow.cpp
 
 HEADERS += \
     dragevent.h \
@@ -27,8 +26,6 @@ FORMS += \
     index.ui \
     mainwindow.ui \
     registerwindow.ui \
-    registerwindow.ui \
-    registerwindow.ui
 
 TRANSLATIONS += \
     Client_zh_CN.ts

@@ -2,12 +2,14 @@
 #include "ui_mainwindow.h"
 #include "dragevent.h"
 #include "registerwindow.h"
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     r=nullptr;
+    index=nullptr;
     setWindowFlag(Qt::FramelessWindowHint);
     this->installEventFilter(new DragEvent(this));
     connect(ui->CloseButton,&QToolButton::clicked,this,&MainWindow::on_CloseButton_triggered);
@@ -108,7 +110,14 @@ void MainWindow::serverSocket(){
             else
                 QMessageBox::warning(this,"提示","注册失败");
         }else if(type=="login_response"){
-            //QString status =jsonObject.value("status").toString();
+            QString status =jsonObject.value("status").toString();
+            if(status=="success"){
+                this->hide();
+                qDebug()<<"生成index";
+                index =new Index(socket,this);
+                qDebug()<<"index显示";
+                index->show();
+            }
             QString message =jsonObject.value("message").toString();
             QMessageBox::information(this,"提示",message);
         }

@@ -10,6 +10,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include "registerwindow.h"
+#include "index.h"
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -39,5 +40,6 @@ private:
     Ui::MainWindow *ui;
     QTcpSocket *socket;
     Register *r;
+    Index *index;
 };
 #endif // MAINWINDOW_H
