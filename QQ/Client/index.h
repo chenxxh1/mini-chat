@@ -1,10 +1,9 @@
 #ifndef INDEX_H
 #define INDEX_H
+
 #include <QMainWindow>
-#include <QWidget>
-#include <QMenu>
 #include <QTcpSocket>
-#include <QDebug>
+#include <QPushButton>
 namespace Ui {
 class Index;
 }
@@ -16,13 +15,18 @@ class Index : public QMainWindow
 public:
     explicit Index(QTcpSocket *s,QWidget *parent = nullptr);
     ~Index();
+signals:
+    void I_close();
+public slots:
+    void closeButtonC();
+    void addButton();
 
 private:
     Ui::Index *ui;
     QTcpSocket *socket;
-    QMenu *menu;
-signals:
-
+    bool addToolButtonisclicked;
+    QPushButton* createGroupButton ;
+    QPushButton* addFriendOrGroupButton;
 };
 
 #endif // INDEX_H

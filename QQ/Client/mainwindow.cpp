@@ -24,13 +24,16 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(socket,&QTcpSocket::readyRead,this,&MainWindow::serverSocket);
     connect(ui->RegisterButton,&QPushButton::clicked,this,&MainWindow::RegisterButton_clicked);
+
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete r;
+    //delete socket;
+    delete index;
 }
-
 void MainWindow::on_aggreButton_clicked()
 {
     //登录按钮的变色逻辑
@@ -62,7 +65,7 @@ void MainWindow::on_LogButton_clicked() // 登录
     QByteArray data = document.toJson();
 
     // 打印调试信息
-    qDebug() << "Sending data:" << data;
+    //qDebug() << "Sending data:" << data;
 
     // 发送数据
     socket->write(data);
@@ -71,7 +74,7 @@ void MainWindow::on_LogButton_clicked() // 登录
 
 void MainWindow::on_CloseButton_triggered()
 {
-    //qDebug()<<"close";
+    qDebug()<<"close";
     this->close();
 }
 
@@ -113,13 +116,16 @@ void MainWindow::serverSocket(){
             QString status =jsonObject.value("status").toString();
             if(status=="success"){
                 this->hide();
-                qDebug()<<"生成index";
                 index =new Index(socket,this);
-                qDebug()<<"index显示";
+                connect(index,&Index::I_close,this,[this](){
+                    this->close();
+                     QApplication::quit();
+                });
                 index->show();
+            }else{
+                QString message =jsonObject.value("message").toString();
+                QMessageBox::information(this,"提示",message);
             }
-            QString message =jsonObject.value("message").toString();
-            QMessageBox::information(this,"提示",message);
         }
     }
 }
