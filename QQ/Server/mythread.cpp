@@ -24,7 +24,8 @@ QTcpSocket* Mythread::getSocket(){
     return this->socket;
 }
 void Mythread::setJO(QJsonObject jo){
-    jsonOb=jo;
+    jsonOb=jo;//设置一些线程的信息
+
 }
 QJsonObject Mythread::getJO(){
     return jsonOb;

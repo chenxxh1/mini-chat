@@ -41,5 +41,6 @@ private:
     QTcpSocket *socket;
     Register *r;
     Index *index;
+    QJsonObject jsonOb;
 };
 #endif // MAINWINDOW_H

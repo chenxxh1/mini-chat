@@ -80,16 +80,18 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
                     QString storePassword = query.value(2).toString();
                     QString snickName = query.value(3).toString();
 
-                    QJsonObject jsonObject;
+                    QJsonObject jsonObject;//账号信息
                     jsonObject["id"] = storeId;
                     jsonObject["account"] = storeAccount;
-                    jsonObject["password"] = storePassword;
                     jsonObject["nickname"] = snickName;
                     if(storePassword==password){
                         //密码正确
                         response["status"] = "success";
                         response["message"] = "Login successful";
-
+                        //将账号信息发送到客户端
+                        response["account"]=storeAccount;
+                        response["nickname"]=snickName;
+                        response["id"]=storeId;
                         QJsonDocument jd(jsonObject);
                         currentThread->setJO(jsonObject);
                         threadInfo[jd.toJson(QJsonDocument::Compact)]=currentThread;//将登录成功的信息加入线程信息
@@ -107,13 +109,13 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
             QString Logmessage=QString("%1, result:%2").arg(message,response.value("message").toString());
             ui->messageList->addItem(Logmessage);
             //返回登录信息
-            responseData = QJsonDocument(response).toJson();
-            socket->write(responseData);
+            qDebug()<<"发送信息";
+
         }else if(type=="register"){
 
             QString account = QString::number(QRandomGenerator::global()->bounded(1000000000000ll)+10000000);
             while(isAccountExists(account)){
-                qDebug()<<account;
+                //qDebug()<<account;
                 account = QString::number(QRandomGenerator::global()->bounded(1000000000000ll)+10000000);
             }
             QString nickname =jsonObject.value("nickname").toString();
@@ -129,7 +131,7 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
             query.bindValue(":account", account);
             query.bindValue(":password", password);
             query.bindValue(":nickname", nickname);
-            QJsonObject response;
+
             response["type"] = "register_response";
             if (query.exec()) {
                 //注册成功
@@ -149,10 +151,41 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
                 response["message"] = query.lastError().text();
             }
             //返回注册信息
-            QByteArray responseData = QJsonDocument(response).toJson();
-            socket->write(responseData);
+        }else if(type=="addFriend_search"){
+            //信息
+            QString sendaccount=jsonObject.value("sendaccount").toString();
+            QString sendnickname=jsonObject.value("sendnickname").toString();
+            QString message=jsonObject.value("message").toString();
+            //在数据库中搜索
+            //提供两种搜索方式，nickname，account
+            QSqlQuery query_n;
+            query_n.prepare("SELECT account,nickname FROM users WHERE nickanme = :message");
+            query_n.bindValue(":message", message);
+            QSqlQuery query_a;
+            query_a.prepare("SELECT account,nickname FROM users WHERE account = :message");
+            query_a.bindValue(":message", message);
+
+            if(query_n.exec()){//通过nickanme搜索
+                if(query_n.next()){
+                    QString account =query_n.value(0).toString();
+                    QString nickname =query_n.value(1).toString();
+                    response["n_account"]=account;
+                    response["n_nickname"]=nickname;
+                }
+            }
+            if(query_a.exec()){//通过nickanme搜索
+                if(query_a.next()){
+                    QString account =query_a.value(0).toString();
+                    QString nickname =query_a.value(1).toString();
+                    response["a_account"]=account;
+                    response["a_nickname"]=nickname;
+                }
+            }
+            response["type"]="addFriend_searcher_reponse";
         }
     }
+    responseData = QJsonDocument(response).toJson();
+    socket->write(responseData);
 }
 void Widget::disClient(QByteArray byte,Mythread *t){
     QString message =QString(byte);

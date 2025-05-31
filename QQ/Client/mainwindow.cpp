@@ -115,17 +115,26 @@ void MainWindow::serverSocket(){
         }else if(type=="login_response"){
             QString status =jsonObject.value("status").toString();
             if(status=="success"){
+                jsonOb["account"]=jsonObject.value("account").toString();
+                jsonOb["nickname"]=jsonObject.value("nickname").toString();
+                jsonOb["id"]=jsonObject.value("id").toString();
                 this->hide();
-                index =new Index(socket,this);
+                index =new Index(socket,jsonOb,this);//主
                 connect(index,&Index::I_close,this,[this](){
                     this->close();
                      QApplication::quit();
                 });
                 index->show();
+
             }else{
                 QString message =jsonObject.value("message").toString();
                 QMessageBox::information(this,"提示",message);
-            }
+             }
+        }else if(type=="addFriend_searcher_reponse"){
+            QString account=jsonObject.value("a_account").toString();
+            QString nickanme=jsonObject.value("a_nickname").toString();
+            qDebug()<<account;
+            qDebug()<<nickanme;
         }
     }
 }
