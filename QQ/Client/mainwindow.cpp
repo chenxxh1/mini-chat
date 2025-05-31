@@ -124,17 +124,15 @@ void MainWindow::serverSocket(){
                     this->close();
                      QApplication::quit();
                 });
+                connect(this,&MainWindow::sendToAFS,index,&Index::mainsendToAFS);//
                 index->show();
 
             }else{
                 QString message =jsonObject.value("message").toString();
                 QMessageBox::information(this,"提示",message);
-             }
+            }
         }else if(type=="addFriend_searcher_reponse"){
-            QString account=jsonObject.value("a_account").toString();
-            QString nickanme=jsonObject.value("a_nickname").toString();
-            qDebug()<<account;
-            qDebug()<<nickanme;
+            emit sendToAFS(jsonObject);
         }
     }
 }

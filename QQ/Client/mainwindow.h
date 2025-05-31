@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QJsonArray>
 #include "registerwindow.h"
 #include "index.h"
 QT_BEGIN_NAMESPACE
@@ -42,5 +43,7 @@ private:
     Register *r;
     Index *index;
     QJsonObject jsonOb;
+signals:
+    void sendToAFS(QJsonObject jsonobject);
 };
 #endif // MAINWINDOW_H

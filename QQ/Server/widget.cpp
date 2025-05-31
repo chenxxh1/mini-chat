@@ -109,7 +109,7 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
             QString Logmessage=QString("%1, result:%2").arg(message,response.value("message").toString());
             ui->messageList->addItem(Logmessage);
             //返回登录信息
-            qDebug()<<"发送信息";
+            //qDebug()<<"发送信息";
 
         }else if(type=="register"){
 
@@ -153,35 +153,49 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
             //返回注册信息
         }else if(type=="addFriend_search"){
             //信息
-            QString sendaccount=jsonObject.value("sendaccount").toString();
-            QString sendnickname=jsonObject.value("sendnickname").toString();
+            // QString sendaccount=jsonObject.value("sendaccount").toString();
+            // QString sendnickname=jsonObject.value("sendnickname").toString();
             QString message=jsonObject.value("message").toString();
             //在数据库中搜索
             //提供两种搜索方式，nickname，account
             QSqlQuery query_n;
-            query_n.prepare("SELECT account,nickname FROM users WHERE nickanme = :message");
+            query_n.prepare("SELECT account,nickname FROM users WHERE nickname = :message");
             query_n.bindValue(":message", message);
             QSqlQuery query_a;
             query_a.prepare("SELECT account,nickname FROM users WHERE account = :message");
             query_a.bindValue(":message", message);
-
+            QJsonArray usersArray;
             if(query_n.exec()){//通过nickanme搜索
-                if(query_n.next()){
-                    QString account =query_n.value(0).toString();
-                    QString nickname =query_n.value(1).toString();
-                    response["n_account"]=account;
-                    response["n_nickname"]=nickname;
+                while(query_n.next()){
+                    // 获取每一行的数据
+                    QString account = query_n.value("account").toString();
+                    QString nickname = query_n.value("nickname").toString();
+
+                    // 创建一个 JSON 对象表示一个用户
+                    QJsonObject userObject;
+                    userObject["account"] = account;
+                    userObject["nickname"] = nickname;
+
+                    // 将用户对象添加到数组中
+                    usersArray.append(userObject);
                 }
             }
-            if(query_a.exec()){//通过nickanme搜索
-                if(query_a.next()){
-                    QString account =query_a.value(0).toString();
-                    QString nickname =query_a.value(1).toString();
-                    response["a_account"]=account;
-                    response["a_nickname"]=nickname;
+            if (query_a.exec()) {
+                while (query_a.next()) {
+                    // 获取每一行的数据
+                    QString account = query_a.value("account").toString();
+                    QString nickname = query_a.value("nickname").toString();
+                    // 创建一个 JSON 对象表示一个用户
+                    QJsonObject userObject;
+                    userObject["account"] = account;
+                    userObject["nickname"] = nickname;
+
+                    // 将用户对象添加到数组中
+                    usersArray.append(userObject);
                 }
             }
             response["type"]="addFriend_searcher_reponse";
+            response["users"]=usersArray;
         }
     }
     responseData = QJsonDocument(response).toJson();
@@ -198,7 +212,6 @@ void Widget::disClient(QByteArray byte,Mythread *t){
 
 void Widget::on_accountpushButton_clicked()
 {
-    qDebug()<<__func__;
     ui->accountList->clear();
     for (auto i = threadInfo.begin(); i != threadInfo.end(); ++i) {
         // 获取账户名和线程指针

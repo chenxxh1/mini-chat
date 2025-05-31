@@ -9,6 +9,7 @@
 #include <QTcpSocket>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QSqlError>
 #include <mythread.h>
 #include <QMap>

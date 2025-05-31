@@ -6,6 +6,9 @@
 #include <QTcpSocket>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
+#include <QStandardItemModel>
+#include <QStandardItem>
 namespace Ui {
 class AddFriend;
 }
@@ -18,14 +21,15 @@ public:
     explicit AddFriend(QTcpSocket *s,QJsonObject js,QWidget *parent = nullptr);
     ~AddFriend();
 
-private slots:
+public slots:
     void on_searchlindEdit();
-
+    void searchSlots(QJsonObject jsonobject);//处理接受的搜索结果信息
+    void viewClickedSlots(const QModelIndex& index);
 private:
     Ui::AddFriend *ui;
-    QStringListModel *mymodel;
     QTcpSocket *socket;
     QJsonObject jsonOb;
+    QStandardItemModel *model;
 signals:
     void Add_close();
 };

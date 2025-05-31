@@ -24,7 +24,7 @@ public slots:
     void addButton();
     void addFriend();
     void createGroup();
-
+    void mainsendToAFS(QJsonObject jsonobject);//处理Main发送给AFS的信息，AFS为addFriend的search
 private slots:
     void on_messageButton_clicked();
 
@@ -41,6 +41,8 @@ private:
     QPushButton* addFriendOrGroupButton;
     AddFriend *addF;
     QJsonObject jsonOb;
+signals:
+    void sendToAFS(QJsonObject jsonobject);//发送给AFS
 };
 
 #endif // INDEX_H
