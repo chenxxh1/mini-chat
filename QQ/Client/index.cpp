@@ -9,7 +9,7 @@ Index::Index(QTcpSocket *s,QJsonObject js,QWidget *parent)
     socket=s;
     jsonOb=js;
     addF=new AddFriend(socket,js,this);
-    connect(this,&Index::sendToAFS,addF,&AddFriend::searchSlots);
+    connect(this,&Index::sendToAF,addF,&AddFriend::fromIN);
     connect(ui->closeButton,&QToolButton::clicked,this,&Index::closeButtonC);
     setWindowFlag(Qt::FramelessWindowHint);
     this->installEventFilter(new DragEvent(this));
@@ -27,8 +27,13 @@ Index::Index(QTcpSocket *s,QJsonObject js,QWidget *parent)
     connect(createGroupButton,&QPushButton::clicked,this,&Index::createGroup);
     connect(addF,&AddFriend::Add_close,this,&Index::comeback);
 }
-void Index::mainsendToAFS(QJsonObject jsonobject){
-    emit sendToAFS(jsonobject);
+void Index::frommain(QJsonObject jsonobject){
+    QString type=jsonobject["type"].toString();
+    if(type=="addFriend_searcher_reponse"
+        ||type=="checkFriend_response"){
+        emit sendToAF(jsonobject);
+    }
+
 }
 Index::~Index()
 {

@@ -12,6 +12,7 @@ SOURCES += \
     addfriend.cpp \
     dragevent.cpp \
     index.cpp \
+    information.cpp \
     main.cpp \
     mainwindow.cpp \
     registerwindow.cpp \
@@ -20,6 +21,7 @@ HEADERS += \
     addfriend.h \
     dragevent.h \
     index.h \
+    information.h \
     mainwindow.h \
     registerwindow.h \
     registerwindow.h
@@ -27,6 +29,7 @@ HEADERS += \
 FORMS += \
     addfriend.ui \
     index.ui \
+    information.ui \
     mainwindow.ui \
     registerwindow.ui \
 

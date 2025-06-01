@@ -66,12 +66,10 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
             QString Seport=jsonObject.value("senderPort").toString();
             QString message = QString("Login request: Account: %1, Password: %2 "
                                       "IP: %3, PORT: %4").arg(account, password,Seip,Seport);
-
             ui->messageList->addItem(message);
             QSqlQuery query;
             query.prepare("SELECT * FROM users WHERE account = :account");
             query.bindValue(":account", account);
-
             if(query.exec()){
                 response["type"] = "login_response";//消息类型
                 if(query.next()){
@@ -196,6 +194,31 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
             }
             response["type"]="addFriend_searcher_reponse";
             response["users"]=usersArray;
+        }else if(type=="checkFriend"){
+            qDebug()<<"checkFriend";
+            response["type"]="checkFriend_response";
+            QString v_account=jsonObject["v_account"].toString();
+            QString account=jsonObject["account"].toString();
+            QSqlQuery query;
+            query.prepare("select count(*) as is_friend from friendships where "
+                          "user1_account= :v_account and user2_account= :account or "
+                          "user1_account= :vv_account and user2_account= :aacount;");
+            query.bindValue(":v_account",v_account);
+            query.bindValue(":account",account);
+            query.bindValue(":vv_account",account);
+            query.bindValue(":aaccount",v_account);
+            if(query.exec()){
+                if(query.next()){
+                    bool is_friend=query.value(0).toBool();
+                    if(is_friend){
+                        response["result"]="is friend";
+                    }else{
+                        response["result"]="is not friend";
+                    }
+                }
+            }else{
+                qDebug()<<query.lastQuery();
+            }
         }
     }
     responseData = QJsonDocument(response).toJson();

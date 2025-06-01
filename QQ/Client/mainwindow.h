@@ -44,6 +44,6 @@ private:
     Index *index;
     QJsonObject jsonOb;
 signals:
-    void sendToAFS(QJsonObject jsonobject);
+    void sendToIN(QJsonObject jsonobject);//发送到index
 };
 #endif // MAINWINDOW_H

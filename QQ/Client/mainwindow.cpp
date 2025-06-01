@@ -124,15 +124,16 @@ void MainWindow::serverSocket(){
                     this->close();
                      QApplication::quit();
                 });
-                connect(this,&MainWindow::sendToAFS,index,&Index::mainsendToAFS);//
+                connect(this,&MainWindow::sendToIN,index,&Index::frommain);
                 index->show();
 
             }else{
                 QString message =jsonObject.value("message").toString();
                 QMessageBox::information(this,"提示",message);
             }
-        }else if(type=="addFriend_searcher_reponse"){
-            emit sendToAFS(jsonObject);
+        }else if(type=="addFriend_searcher_reponse"
+                   ||type=="checkFriend_response"){
+            emit sendToIN(jsonObject);
         }
     }
 }
