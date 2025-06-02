@@ -94,6 +94,7 @@ void Index::on_messageButton_clicked()
 void Index::on_friendButton_clicked()
 {
     qDebug()<<__func__;
+
     fm->show();
     this->hide();
 }

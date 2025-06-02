@@ -11,16 +11,18 @@ FriendManagement::FriendManagement(QTcpSocket *s,QJsonObject js,QWidget *parent)
     socket=s;
     model=new QStandardItemModel(this);
     account =js["account"].toString();
+    update();
+    connect(ui->closetoolButton,&QToolButton::clicked,this,[this](){
+        this->close();
+        emit FM_close();
+    });
+}
+void FriendManagement::update(){
     QJsonObject jsonobect;
     jsonobect["type"]="View_friend_relationships";
     jsonobect["account"]=account;
     QByteArray byte=QJsonDocument(jsonobect).toJson();
     socket->write(byte);
-
-    connect(ui->closetoolButton,&QToolButton::clicked,this,[this](){
-        this->close();
-        emit FM_close();
-    });
 }
 FriendManagement::~FriendManagement()
 {

@@ -28,6 +28,7 @@ private:
     QStandardItemModel *model;
 public slots:
     void fromIN(QJsonObject jsonobject);
+    void update();
 signals:
     void FM_close();
 };
