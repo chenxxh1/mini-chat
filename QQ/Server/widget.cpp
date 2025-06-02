@@ -260,6 +260,7 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
                     one_friend["status"]=status;
                     allfriend.append(one_friend);
                 }
+                qDebug()<<allfriend;
             }
             response["type"]="View_friend_relationships_response";
             response["allfriend"]=allfriend;
