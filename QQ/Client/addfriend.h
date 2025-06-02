@@ -31,7 +31,7 @@ private:
     QTcpSocket *socket;
     QJsonObject jsonOb;
     QStandardItemModel *model;
-    information *info;
+    Information *info;
 signals:
     void Add_close();
     void sendToINF(QJsonObject jsonobject);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>information</class>
- <widget class="QMainWindow" name="information">
+ <class>Information</class>
+ <widget class="QMainWindow" name="Information">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -41,8 +41,8 @@ QToolButton#closetoolButton:hover{
    <widget class="QPushButton" name="sendpushButton">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>240</y>
+      <x>170</x>
+      <y>290</y>
       <width>80</width>
       <height>80</height>
      </rect>
@@ -57,7 +57,7 @@ QToolButton#closetoolButton:hover{
      <string>发送消息</string>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>70</x>

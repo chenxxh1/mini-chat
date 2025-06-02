@@ -8,8 +8,13 @@ Index::Index(QTcpSocket *s,QJsonObject js,QWidget *parent)
     ui->setupUi(this);
     socket=s;
     jsonOb=js;
+
     addF=new AddFriend(socket,js,this);
     connect(this,&Index::sendToAF,addF,&AddFriend::fromIN);
+
+    fm=new FriendManagement(socket,jsonOb,this);
+    connect(this,&Index::sendToFM,fm,&FriendManagement::fromIN);
+
     connect(ui->closeButton,&QToolButton::clicked,this,&Index::closeButtonC);
     setWindowFlag(Qt::FramelessWindowHint);
     this->installEventFilter(new DragEvent(this));
@@ -23,15 +28,22 @@ Index::Index(QTcpSocket *s,QJsonObject js,QWidget *parent)
     createGroupButton->hide();
     addFriendOrGroupButton->hide();
     connect(ui->addToolButton,&QToolButton::clicked,this,&Index::addButton);
+    connect(ui->friendButton,&QPushButton::clicked,this,&Index::on_friendButton_clicked);
     connect(addFriendOrGroupButton,&QPushButton::clicked,this,&Index::addFriend);
     connect(createGroupButton,&QPushButton::clicked,this,&Index::createGroup);
     connect(addF,&AddFriend::Add_close,this,&Index::comeback);
+    connect(fm,&FriendManagement::FM_close,this,&Index::comeback);
 }
 void Index::frommain(QJsonObject jsonobject){
     QString type=jsonobject["type"].toString();
     if(type=="addFriend_searcher_reponse"
-        ||type=="checkFriend_response"){
+        ||type=="checkFriend_response"
+        ||type=="friend_request_response"){
         emit sendToAF(jsonobject);
+        qDebug()<<"sendToAF";
+    }else if(type=="View_friend_relationships_response"){
+        emit sendToFM(jsonobject);
+        qDebug()<<"sendToFM";
     }
 
 }
@@ -45,7 +57,6 @@ void Index::addFriend(){
 }
 void Index::comeback(){
     this->show();
-    addF->close();
 }
 void Index::createGroup(){
     qDebug()<<__func__;
@@ -83,6 +94,8 @@ void Index::on_messageButton_clicked()
 void Index::on_friendButton_clicked()
 {
     qDebug()<<__func__;
+    fm->show();
+    this->hide();
 }
 
 

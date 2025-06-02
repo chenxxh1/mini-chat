@@ -8,24 +8,28 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 #include <QByteArray>
+#include <QMessageBox>
 namespace Ui {
-class information;
+class Information;
 }
 
-class information : public QMainWindow
+class Information : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit information(QTcpSocket *s,QJsonObject viewer,QString a,QWidget *parent = nullptr);
-    ~information();//a指要显示的账号,viewer是查看者的信息
+    explicit Information(QTcpSocket *s,QJsonObject viewer,QString a,QWidget *parent = nullptr);
+    ~Information();//a指要显示的账号,viewer是查看者的信息
 
 private:
-    Ui::information *ui;
+    Ui::Information *ui;
     QTcpSocket *socket;
-    QString message;
+    QString account;
+    QString nickname;
+    QJsonObject viewer;
 public slots:
     void fromAD(QJsonObject jsonobject);
+    void sendPushClick();
 private slots:
 };
 

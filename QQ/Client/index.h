@@ -4,8 +4,9 @@
 #include <QMainWindow>
 #include <QTcpSocket>
 #include <QPushButton>
-#include <addfriend.h>
+#include "addfriend.h"
 #include <QJsonObject>
+#include "friendmanagement.h"
 namespace Ui {
 class Index;
 }
@@ -39,10 +40,12 @@ private:
     bool addToolButtonisclicked;
     QPushButton* createGroupButton ;
     QPushButton* addFriendOrGroupButton;
-    AddFriend *addF;
+    AddFriend *addF;//添加好友界面
     QJsonObject jsonOb;
+    FriendManagement *fm;//好友管理界面
 signals:
     void sendToAF(QJsonObject jsonobject);//发送给AF
+    void sendToFM(QJsonObject jsonobject);
 };
 
 #endif // INDEX_H

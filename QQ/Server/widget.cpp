@@ -29,7 +29,7 @@ Widget::~Widget()
 }
 bool Widget::isAccountExists(QString account){
     QSqlQuery query;
-    query.prepare("SELECT 1 FROM users WHERE account = :account"); // 查询常量值1，而不是密码
+    query.prepare("SELECT 1 FROM users WHERE account = :account"); // 查询常量值1
     query.bindValue(":account", account);
     if(query.exec()){
         return query.next(); // 如果找到了匹配的记录，返回 true，否则返回 false
@@ -59,6 +59,7 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
     if(!document.isNull()&&document.isObject()){
         QJsonObject jsonObject =document.object();
         QString type =jsonObject.value("type").toString();
+        qDebug()<<type;
         if(type=="login"){
             QString account = jsonObject.value("account").toString();
             QString password = jsonObject.value("password").toString();
@@ -201,12 +202,10 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
             QString account=jsonObject["account"].toString();
             QSqlQuery query;
             query.prepare("select count(*) as is_friend from friendships where "
-                          "user1_account= :v_account and user2_account= :account or "
-                          "user1_account= :vv_account and user2_account= :aacount;");
+                          "(user1_account= :v_account and user2_account= :account) or "
+                          "(user2_account= :v_account and user1_account= :account);");
             query.bindValue(":v_account",v_account);
             query.bindValue(":account",account);
-            query.bindValue(":vv_account",account);
-            query.bindValue(":aaccount",v_account);
             if(query.exec()){
                 if(query.next()){
                     bool is_friend=query.value(0).toBool();
@@ -219,6 +218,51 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
             }else{
                 qDebug()<<query.lastQuery();
             }
+        }else if(type=="friend_request"){
+            response["type"]="friend_request_response";
+            QString v_account=jsonObject["v_account"].toString();
+            QString account=jsonObject["account"].toString();
+            qDebug()<<v_account<<"  "<<account;
+            QSqlQuery query;
+            query.prepare("insert into friendships(user1_account,user2_account,status) values(:v_account,:account,0);");
+            query.bindValue(":v_account",v_account);
+            query.bindValue(":account",account);
+            if(query.exec()){
+                response["result"]="insert_successed";
+                qDebug()<<"插入成功";
+            }else{
+                qDebug()<<query.lastError();
+                response["result"]="insert_not_successed";
+            }
+        }else if(type=="View_friend_relationships"){
+            QString account =jsonObject["account"].toString();
+            QSqlQuery query;
+            QJsonArray allfriend;
+            query.prepare("select user2_account,status from friendships where user1_account=:account "
+                          "union select user1_account,status from friendships where user2_account=:account;");
+            query.bindValue(":account",account);
+            if(query.exec()){
+                while(query.next()){
+                    QString friend_account=query.value(0).toString();
+                    QSqlQuery qu;
+                    QString friend_nickname;
+                    qu.prepare("select nickname from users where account = :account");
+                    qu.bindValue(":account",friend_account);
+                    if(qu.exec()){
+                        if(qu.next()){
+                            friend_nickname=qu.value(0).toString();
+                        }
+                    }
+                    int status=query.value(1).toInt();
+                    QJsonObject one_friend;
+                    one_friend["friend_account"]=friend_account;
+                    one_friend["friend_nickname"]=friend_nickname;
+                    one_friend["status"]=status;
+                    allfriend.append(one_friend);
+                }
+            }
+            response["type"]="View_friend_relationships_response";
+            response["allfriend"]=allfriend;
         }
     }
     responseData = QJsonDocument(response).toJson();

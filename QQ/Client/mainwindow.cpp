@@ -98,6 +98,7 @@ void MainWindow::serverSocket(){
     if(!document.isNull()&&document.isObject()){
         QJsonObject jsonObject =document.object();
         QString type = jsonObject.value("type").toString();
+        qDebug()<<type;
         if(type=="register_response"){
             QString status =jsonObject.value("status").toString();
             if(status=="success"){
@@ -132,8 +133,11 @@ void MainWindow::serverSocket(){
                 QMessageBox::information(this,"提示",message);
             }
         }else if(type=="addFriend_searcher_reponse"
-                   ||type=="checkFriend_response"){
+                   ||type=="checkFriend_response"
+                   ||type=="friend_request_response"
+                   ||type=="View_friend_relationships_response"){
             emit sendToIN(jsonObject);
+            qDebug()<<"sendToIN";
         }
     }
 }

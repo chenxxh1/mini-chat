@@ -13,6 +13,7 @@ AddFriend::AddFriend(QTcpSocket *s,QJsonObject js,QWidget *parent)
     this->installEventFilter(new DragEvent(this));
     connect(ui->searchlindEdit,&QLineEdit::editingFinished,this,&AddFriend::on_searchlindEdit);
     connect(ui->closepushButton,&QPushButton::clicked,this,[this](){
+        this->close();
         emit this->Add_close();
     });
     connect(ui->resultlistView,&QListView::clicked,this,&AddFriend::viewClickedSlots);
@@ -21,8 +22,8 @@ void AddFriend::viewClickedSlots(const QModelIndex& index){
     //qDebug()<<index.data().toString();
     QString message=index.data().toString();
 
-    info=new information(socket,jsonOb,message,this);
-    connect(this,&AddFriend::sendToINF,info,&information::fromAD);
+    info=new Information(socket,jsonOb,message,this);
+    connect(this,&AddFriend::sendToINF,info,&Information::fromAD);
     info->show();
 }
 AddFriend::~AddFriend()
@@ -51,8 +52,9 @@ void AddFriend::fromIN(QJsonObject jsonobject){
         }
         ui->resultlistView->setModel(model);
     }
-    else if(type=="checkFriend_response"){
+    else if(type=="checkFriend_response"||type=="friend_request_response"){
         emit sendToINF(jsonobject);
+        qDebug()<<"sendToINF";
     }
 }
 void AddFriend::on_searchlindEdit()

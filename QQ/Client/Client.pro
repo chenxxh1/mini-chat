@@ -11,6 +11,7 @@ CONFIG += c++17
 SOURCES += \
     addfriend.cpp \
     dragevent.cpp \
+    friendmanagement.cpp \
     index.cpp \
     information.cpp \
     main.cpp \
@@ -20,6 +21,7 @@ SOURCES += \
 HEADERS += \
     addfriend.h \
     dragevent.h \
+    friendmanagement.h \
     index.h \
     information.h \
     mainwindow.h \
@@ -28,6 +30,7 @@ HEADERS += \
 
 FORMS += \
     addfriend.ui \
+    friendmanagement.ui \
     index.ui \
     information.ui \
     mainwindow.ui \

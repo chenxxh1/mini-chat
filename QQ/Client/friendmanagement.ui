@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FriendManagement</class>
+ <widget class="QMainWindow" name="FriendManagement">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>708</width>
+    <height>785</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QListView" name="messagelistView">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>70</y>
+      <width>701</width>
+      <height>691</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="closetoolButton">
+    <property name="geometry">
+     <rect>
+      <x>670</x>
+      <y>20</y>
+      <width>25</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>25</width>
+      <height>25</height>
+     </size>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QToolButton{
+	border-image: url(:/imgs/icons8-close.svg);
+	background-color: rgba(0, 0, 0,0);
+}
+QToolButton#closetoolButton:hover{
+	
+	border-image: url(:/imgs/whiteclose.svg);
+	background-color: rgb(255, 23, 2);
+}</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>708</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

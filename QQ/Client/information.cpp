@@ -1,18 +1,17 @@
 #include "information.h"
 #include "ui_information.h"
 #include "dragevent.h"
-information::information(QTcpSocket *s, QJsonObject viewer,QString message, QWidget *parent)
+Information::Information(QTcpSocket *s, QJsonObject v,QString message, QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::information)
+    , ui(new Ui::Information)
 {
     ui->setupUi(this);
     setWindowFlag(Qt::FramelessWindowHint);
     this->installEventFilter(new DragEvent(this));
     socket=s;
-    QRegularExpression re("账号：(\\d+)，昵称：([^，]+)");
+    static QRegularExpression re("账号：(\\d+)，昵称：([^，]+)");//使用静态QRegularExpression对象替代临时对象可以提高性能和效率
     QRegularExpressionMatch match = re.match(message);
-    QString account;
-    QString nickname;
+    viewer=v;
     if (match.hasMatch()) {
         account = match.captured(1); // 获取第一个捕获组的内容（账号）
         nickname = match.captured(2); // 获取第二个捕获组的内容（昵称）
@@ -33,21 +32,38 @@ information::information(QTcpSocket *s, QJsonObject viewer,QString message, QWid
     connect(ui->closetoolButton,&QToolButton::clicked,this,[this](){
         this->close();
     });
+    connect(ui->sendpushButton,&QPushButton::clicked,this,&Information::sendPushClick);
 }
 
-information::~information()
+Information::~Information()
 {
     delete ui;
 }
-void information::fromAD(QJsonObject jsonobject){
+void Information::fromAD(QJsonObject jsonobject){
     QString type =jsonobject["type"].toString();
+    qDebug()<<type;
     if(type=="checkFriend_response"){
         QString is_friend=jsonobject["result"].toString();
-        qDebug()<<is_friend;
+        //qDebug()<<is_friend;
         if(is_friend=="is not friend"){
             ui->sendpushButton->setText("发送好友申请");
         }
+    }else if(type=="friend_request_response"){
+        QMessageBox::information(this,"提示","已发送申请");
     }
+}
+void Information::sendPushClick(){
+    QString v_account=viewer["account"].toString();//查看者的账号
+    //向服务端发送好友申请
+    QJsonObject jsonObject;
+    jsonObject["type"]="friend_request";
+    jsonObject["v_account"]=v_account;
+    jsonObject["account"]=account;
+    ui->nicknamelabel->setText(nickname);
+    ui->accountlabel->setText(account);
+    QByteArray byte=QJsonDocument(jsonObject).toJson();
+
+    socket->write(byte);
 }
 
 
