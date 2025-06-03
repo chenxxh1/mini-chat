@@ -22,25 +22,18 @@ class FriendManagement : public QMainWindow
 public:
     explicit FriendManagement(QTcpSocket *s,QJsonObject js,QWidget *parent = nullptr);
     ~FriendManagement();
-    void addFriend(const QString& account, const QString& nickname, int status);
 private:
     Ui::FriendManagement *ui;
     QString account;
     QTcpSocket *socket;
     QStandardItemModel *model;
-    void addFriendItem(const QString& message, int status);
+    void addFriendItem(const QJsonObject &js);
 public slots:
     void fromIN(QJsonObject jsonobject);
     void update();
-    void onAgreeButtonClicked(const QString& message) {
-        qDebug() << "同意按钮被点击：" << message;
-    }
-    void onRefuseButtonClicked(const QString& message) {
-        qDebug() << "拒绝按钮被点击：" << message;
-    }
-    void onSendMessageButtonClicked(const QString& message) {
-        qDebug() << "发送信息按钮被点击：" << message;
-    }
+    void onAgreeButtonClicked(const QJsonObject &js);
+    void onRefuseButtonClicked(const QJsonObject &js);
+    void onSendMessageButtonClicked(const QJsonObject &js);
 
 signals:
     void FM_close();

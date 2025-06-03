@@ -97,8 +97,8 @@ void MainWindow::serverSocket(){
     QJsonDocument document =QJsonDocument::fromJson(byte);
     if(!document.isNull()&&document.isObject()){
         QJsonObject jsonObject =document.object();
+        qDebug()<<__func__<<jsonObject;
         QString type = jsonObject.value("type").toString();
-        qDebug()<<type;
         if(type=="register_response"){
             QString status =jsonObject.value("status").toString();
             if(status=="success"){
@@ -137,7 +137,6 @@ void MainWindow::serverSocket(){
                    ||type=="friend_request_response"
                    ||type=="View_friend_relationships_response"){
             emit sendToIN(jsonObject);
-            qDebug()<<"sendToIN";
         }
     }
 }

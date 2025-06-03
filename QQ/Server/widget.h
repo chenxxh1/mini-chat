@@ -27,6 +27,7 @@ public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
     bool isAccountExists(QString account);//查询账号是否存在
+    void findallfriend(const QString &account,QJsonObject &response);
 public slots:
     void newClient();
     void newMessageReciver(QByteArray byte,Mythread *currentThread);//处理信息

@@ -1,6 +1,13 @@
 #include "frienditemwidget.h"
 
-FriendItemWidget::FriendItemWidget(const QString &message, int status, QWidget *parent): QWidget(parent), messageLabel(new QLabel(message, this)) {
+FriendItemWidget::FriendItemWidget(const QJsonObject &js, QWidget *parent): QWidget(parent) {
+    qDebug()<<__func__<<js;
+    jsonobject=js;
+    QString account=js["friend_account"].toString();
+    QString nickname=js["friend_nickname"].toString();
+    int status=js["status"].toInt();
+    QString message = QString("账号: %1, 昵称: %2").arg(account, nickname);
+    messageLabel=new QLabel(message);
     QHBoxLayout* layout = new QHBoxLayout(this);
     qDebug()<<"messageLabel:"<<message;
 
@@ -44,17 +51,14 @@ FriendItemWidget::FriendItemWidget(const QString &message, int status, QWidget *
 
     // 连接按钮的点击信号
     connect(agreeButton, &QPushButton::clicked, this, [this]() {
-        qDebug() << "同意按钮被点击，消息：" << messageLabel->text();
-        emit agreeButtonClicked(messageLabel->text());
+        emit agreeButtonClicked(jsonobject);
     });
 
     connect(refuseButton, &QPushButton::clicked, this, [this]() {
-        qDebug() << "拒绝按钮被点击，消息：" << messageLabel->text();
-        emit refuseButtonClicked(messageLabel->text());
+        emit refuseButtonClicked(jsonobject);
     });
 
     connect(sendMessageButton, &QPushButton::clicked, this, [this]() {
-        qDebug() << "发送信息按钮被点击，消息：" << messageLabel->text();
-        emit sendMessageButtonClicked(messageLabel->text());
+        emit sendMessageButtonClicked(jsonobject);
     });
 }

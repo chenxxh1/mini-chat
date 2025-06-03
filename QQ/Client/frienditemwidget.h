@@ -16,17 +16,18 @@ class FriendItemWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit FriendItemWidget(const QString& message, int status, QWidget* parent = nullptr);
+    explicit FriendItemWidget(const QJsonObject &js, QWidget* parent = nullptr);
 
 signals:
-    void agreeButtonClicked(const QString& message);
-    void refuseButtonClicked(const QString& message);
-    void sendMessageButtonClicked(const QString& message);
+    void agreeButtonClicked(const QJsonObject &js);
+    void refuseButtonClicked(const QJsonObject &js);
+    void sendMessageButtonClicked(const QJsonObject &js);
 private:
     QLabel* messageLabel;
     QPushButton* agreeButton;
     QPushButton* refuseButton;
     QPushButton* sendMessageButton;
+    QJsonObject jsonobject;
 };
 
 #endif // FRIENDITEMWIDGET_H

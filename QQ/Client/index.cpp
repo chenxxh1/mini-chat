@@ -35,15 +35,14 @@ Index::Index(QTcpSocket *s,QJsonObject js,QWidget *parent)
     connect(fm,&FriendManagement::FM_close,this,&Index::comeback);
 }
 void Index::frommain(QJsonObject jsonobject){
+    qDebug()<<__func__<<jsonobject;
     QString type=jsonobject["type"].toString();
     if(type=="addFriend_searcher_reponse"
         ||type=="checkFriend_response"
         ||type=="friend_request_response"){
         emit sendToAF(jsonobject);
-        qDebug()<<"sendToAF";
     }else if(type=="View_friend_relationships_response"){
         emit sendToFM(jsonobject);
-        qDebug()<<"sendToFM";
     }
 
 }

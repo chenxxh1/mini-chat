@@ -29,21 +29,41 @@ void FriendManagement::update(){
     QByteArray byte=QJsonDocument(jsonobect).toJson();
     socket->write(byte);
 }
+
+void FriendManagement::onAgreeButtonClicked(const QJsonObject &js)
+{
+    qDebug()<<__func__<<js;
+    QJsonObject json=js;
+    json["type"]="Agree_the_friend";
+    json["account"]=account;
+    QByteArray byte =QJsonDocument(json).toJson();
+    socket->write(byte);
+}
+
+void FriendManagement::onRefuseButtonClicked(const QJsonObject &js)
+{
+    qDebug()<<__func__<<js;
+    QJsonObject json=js;
+    json["type"]="Refuse_the_friend";
+    json["account"]=account;
+    QByteArray byte =QJsonDocument(json).toJson();
+    socket->write(byte);
+}
+
+void FriendManagement::onSendMessageButtonClicked(const QJsonObject &js)
+{
+    qDebug()<<__func__<<js;
+}
 FriendManagement::~FriendManagement()
 {
     delete ui;
 }
 
-void FriendManagement::addFriend(const QString &account, const QString &nickname, int status)
+void FriendManagement::addFriendItem(const QJsonObject &js)
 {
-    QString message = QString("账号: %1, 昵称: %2").arg(account, nickname);
-    addFriendItem(message, status);
-}
-
-void FriendManagement::addFriendItem(const QString &message, int status)
-{
+    qDebug()<<__func__<<js;
     // 创建自定义小部件
-    FriendItemWidget* widget = new FriendItemWidget(message, status,this);
+    FriendItemWidget* widget = new FriendItemWidget(js,this);
     widget->show();
     // 连接按钮点击信号
     connect(widget, &FriendItemWidget::agreeButtonClicked, this, &FriendManagement::onAgreeButtonClicked);
@@ -65,19 +85,19 @@ void FriendManagement::addFriendItem(const QString &message, int status)
 }
 
 void FriendManagement::fromIN(QJsonObject jsonobject){
+    model->clear();
+    qDebug()<<__func__<<jsonobject;
     QString type=jsonobject["type"].toString();
     if (type=="View_friend_relationships_response"){
         if(jsonobject.contains("allfriend")&&jsonobject["allfriend"].isArray()){
             QJsonArray allfriend=jsonobject["allfriend"].toArray();
+            qDebug()<<allfriend;
             for(QJsonArray::const_iterator it=allfriend.constBegin();it!=allfriend.constEnd();++it){
                 const auto &item =*it;
                 if (item.isObject()) {
                     QJsonObject cu_friend = item.toObject();
-                    //qDebug()<<cu_friend;
-                    QString account = cu_friend["friend_account"].toString();
-                    QString nickname = cu_friend["friend_nickname"].toString();
-                    int status=cu_friend["status"].toInt();
-                    addFriend(account, nickname, status);
+                    qDebug()<<cu_friend;
+                    addFriendItem(cu_friend);
                 }
             }
         }
