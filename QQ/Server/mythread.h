@@ -14,8 +14,8 @@ public:
     explicit Mythread(QTcpSocket *s);
     void run();
     QTcpSocket* getSocket();
-    void setJO(QJsonObject jo);
-    QJsonObject getJO();
+    void setAccount(QString account);
+    QString getAccount();
 signals:
     void sendToWidget(QByteArray byte,Mythread *t);
     void clientDisconnected(QByteArray byte,Mythread *t);
@@ -24,7 +24,7 @@ public slots:
     void handleDisconnected();
 private:
     QTcpSocket *socket;
-    QJsonObject jsonOb;
+    QString account;
 signals:
 };
 

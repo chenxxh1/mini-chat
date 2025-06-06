@@ -125,9 +125,8 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
                         response["account"]=storeAccount;
                         response["nickname"]=snickName;
                         response["id"]=storeId;
-                        QJsonDocument jd(jsonObject);
-                        currentThread->setJO(jsonObject);
-                        threadInfo[jd.toJson(QJsonDocument::Compact)]=currentThread;//将登录成功的信息加入线程信息
+                        currentThread->setAccount(storeAccount);
+                        threadInfo[storeAccount]=currentThread;//将登录成功的信息加入线程信息
                     }else{
                         //密码错误
                         response["status"] = "failure";
@@ -306,9 +305,8 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
 void Widget::disClient(QByteArray byte,Mythread *t){
     QString message =QString(byte);
     ui->messageList->addItem(message);
-    QJsonObject jsonObject =t->getJO();
-    QJsonDocument jsonDocument(jsonObject);
-    threadInfo.remove(jsonDocument.toJson(QJsonDocument::Compact));
+    QString account =t->getAccount();
+    threadInfo.remove(account);
     //qDebug()<<account;
 }
 
@@ -317,15 +315,12 @@ void Widget::on_accountpushButton_clicked()
     ui->accountList->clear();
     for (auto i = threadInfo.begin(); i != threadInfo.end(); ++i) {
         // 获取账户名和线程指针
-        QJsonObject json =QJsonDocument::fromJson(i.key().toUtf8()).object();
+        QString account =i.key();
         //Mythread* currentThread = i.value();
         // 创建一个列表项
         QListWidgetItem *item = new QListWidgetItem();
-        int ID =json["id"].toInt();
-        QString Account =json["account"].toString();
-        QString Nickname =json["nickname"].toString();
         // 设置列表项的文本
-        QString text = QString("ID: %1, Account: %2, Nickname: %3").arg(ID).arg(Account,Nickname);
+        QString text = account;
         item->setText(text);
 
         // 将列表项添加到 QListWidget
