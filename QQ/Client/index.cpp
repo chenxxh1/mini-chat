@@ -1,6 +1,7 @@
 #include "index.h"
 #include "ui_index.h"
 #include "dragevent.h"
+#include "frienditemwidget.h"
 Index::Index(QTcpSocket *s,QJsonObject js,QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Index)
@@ -14,7 +15,6 @@ Index::Index(QTcpSocket *s,QJsonObject js,QWidget *parent)
 
     fm=new FriendManagement(socket,jsonOb,this);
     connect(this,&Index::sendToFM,fm,&FriendManagement::fromIN);
-
     connect(ui->closeButton,&QToolButton::clicked,this,&Index::closeButtonC);
     setWindowFlag(Qt::FramelessWindowHint);
     this->installEventFilter(new DragEvent(this));
@@ -47,12 +47,14 @@ void Index::frommain(QJsonObject jsonobject){
     }else if(type=="View_friend_relationships_response"||type == "get_history_response"){
         emit sendToFM(jsonobject);
     }
-
 }
 Index::~Index()
 {
     delete ui;
 }
+
+
+
 void Index::addFriend(){
     this->hide();
     addF->show();
@@ -60,6 +62,8 @@ void Index::addFriend(){
 void Index::comeback(){
     this->show();
 }
+
+
 void Index::createGroup(){
     qDebug()<<__func__;
 }

@@ -12,6 +12,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include "chatwindow.h"
+#include "frienditemwidget.h"
 namespace Ui {
 class FriendManagement;
 }
@@ -29,6 +30,7 @@ private:
     QString nickname;
     QTcpSocket *socket;
     QStandardItemModel *model;
+    QStandardItemModel *sendToIndexmodel;
     QMap<QString, ChatWindow*> chatWindowMap;
     void addFriendItem(const QJsonObject &js);
 

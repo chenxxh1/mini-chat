@@ -14,7 +14,7 @@ ChatWindow::ChatWindow(QTcpSocket *socket, const QString &selfAccount, const QSt
     ui->MessageListWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
 
-    this->installEventFilter(new DragEvent(this));
+    this->installEventFilter(new DragEvent());
     this->socket = socket;
     this->selfAccount = selfAccount;
     this->friendAccount = friendAccount;
@@ -31,6 +31,11 @@ ChatWindow::ChatWindow(QTcpSocket *socket, const QString &selfAccount, const QSt
 ChatWindow::~ChatWindow()
 {
     delete ui;
+}
+
+void ChatWindow::run()
+{
+
 }
 
 void ChatWindow::on_SendButton_clicked()

@@ -1,7 +1,7 @@
 #include "friendmanagement.h"
 #include "ui_friendmanagement.h"
 #include "dragevent.h"
-#include "frienditemwidget.h"
+
 FriendManagement::FriendManagement(QTcpSocket *s,QJsonObject js,QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::FriendManagement)
@@ -75,6 +75,7 @@ void FriendManagement::addFriendItem(const QJsonObject &js)
     // 创建自定义小部件
     QJsonObject newjs=js;
     newjs["account"]=account;
+    int status=newjs["status"].toInt();
     FriendItemWidget* widget = new FriendItemWidget(newjs,this);
     widget->show();
     // 连接按钮点击信号
@@ -113,6 +114,7 @@ void FriendManagement::fromIN(QJsonObject jsonobject){
                 }
             }
         }
+
     }
     else if(type=="get_history_response")
     {

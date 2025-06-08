@@ -6,6 +6,8 @@
 #include <QPushButton>
 #include "addfriend.h"
 #include <QJsonObject>
+#include <QStandardItem>
+#include <QStandardItemModel>
 #include "friendmanagement.h"
 namespace Ui {
 class Index;
@@ -25,7 +27,6 @@ public slots:
     void addFriend();
     void createGroup();
     void frommain(QJsonObject jsonobject);//处理来自main的信息
-private slots:
     void on_messageButton_clicked();
 
     void on_friendButton_clicked();
@@ -48,6 +49,7 @@ signals:
     void sendToAF(QJsonObject jsonobject);//发送给AF
     void sendToFM(QJsonObject jsonobject);
     void I_close();
+    void createItem(QJsonObject js);
 };
 
 #endif // INDEX_H

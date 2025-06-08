@@ -1,6 +1,7 @@
 #include "information.h"
 #include "ui_information.h"
 #include "dragevent.h"
+#include "chatwindow.h"
 Information::Information(QTcpSocket *s, QJsonObject v,QString message, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Information)
@@ -52,17 +53,22 @@ void Information::fromAD(QJsonObject jsonobject){
     }
 }
 void Information::sendPushClick(){
-    QString v_account=viewer["account"].toString();//查看者的账号
-    //向服务端发送好友申请
-    QJsonObject jsonObject;
-    jsonObject["type"]="friend_request";
-    jsonObject["v_account"]=v_account;
-    jsonObject["account"]=account;
-    ui->nicknamelabel->setText(nickname);
-    ui->accountlabel->setText(account);
-    QByteArray byte=QJsonDocument(jsonObject).toJson();
+    if(ui->sendpushButton->text()=="发送好友申请"){
+        QString v_account=viewer["account"].toString();//查看者的账号
+        //向服务端发送好友申请
+        QJsonObject jsonObject;
+        jsonObject["type"]="friend_request";
+        jsonObject["v_account"]=v_account;
+        jsonObject["account"]=account;
+        ui->nicknamelabel->setText(nickname);
+        ui->accountlabel->setText(account);
+        QByteArray byte=QJsonDocument(jsonObject).toJson();
 
-    socket->write(byte);
+        socket->write(byte);
+    }else{
+
+    }
+
 }
 
 

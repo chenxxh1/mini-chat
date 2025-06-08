@@ -9,6 +9,7 @@ AddFriend::AddFriend(QTcpSocket *s,QJsonObject js,QWidget *parent)
     socket=s;
     jsonOb=js;
     model=new QStandardItemModel(this);
+    info=nullptr;
     setWindowFlag(Qt::FramelessWindowHint);
     this->installEventFilter(new DragEvent(this));
     connect(ui->searchlindEdit,&QLineEdit::editingFinished,this,&AddFriend::on_searchlindEdit);
@@ -21,7 +22,7 @@ AddFriend::AddFriend(QTcpSocket *s,QJsonObject js,QWidget *parent)
 void AddFriend::viewClickedSlots(const QModelIndex& index){
     //qDebug()<<index.data().toString();
     QString message=index.data().toString();
-
+    delete info;
     info=new Information(socket,jsonOb,message,this);
     connect(this,&AddFriend::sendToINF,info,&Information::fromAD);
     info->show();
