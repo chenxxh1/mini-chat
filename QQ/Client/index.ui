@@ -231,7 +231,7 @@ QPushButton:hover{
        </layout>
       </item>
       <item>
-       <widget class="QListView" name="listView">
+       <widget class="QListView" name="messagelistView">
         <property name="minimumSize">
          <size>
           <width>350</width>
@@ -261,7 +261,7 @@ QPushButton:hover{
      <x>0</x>
      <y>0</y>
      <width>478</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>

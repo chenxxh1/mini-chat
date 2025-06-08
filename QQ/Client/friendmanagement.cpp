@@ -1,7 +1,7 @@
 #include "friendmanagement.h"
 #include "ui_friendmanagement.h"
 #include "dragevent.h"
-
+#include "frienditemwidget.h"
 FriendManagement::FriendManagement(QTcpSocket *s,QJsonObject js,QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::FriendManagement)

@@ -12,7 +12,8 @@ Index::Index(QTcpSocket *s,QJsonObject js,QWidget *parent)
 
     addF=new AddFriend(socket,js,this);
     connect(this,&Index::sendToAF,addF,&AddFriend::fromIN);
-
+    account =js["account"].toString();
+    nickname=js["nickname"].toString();
     fm=new FriendManagement(socket,jsonOb,this);
     connect(this,&Index::sendToFM,fm,&FriendManagement::fromIN);
     connect(ui->closeButton,&QToolButton::clicked,this,&Index::closeButtonC);
@@ -36,6 +37,12 @@ Index::Index(QTcpSocket *s,QJsonObject js,QWidget *parent)
     connect(createGroupButton,&QPushButton::clicked,this,&Index::createGroup);
     connect(addF,&AddFriend::Add_close,this,&Index::comeback);
     connect(fm,&FriendManagement::FM_close,this,&Index::comeback);
+    model=new QStandardItemModel(this);
+    connect(this,&Index::createItem,this,&Index::addFriendItem);
+    ui->messagelistView->setModel(model);
+    // 设置 QListView 的大小调整策略
+    ui->messagelistView->setResizeMode(QListView::Adjust);
+    ui->messagelistView->setUniformItemSizes(true);
 }
 void Index::frommain(QJsonObject jsonobject){
     qDebug()<<__func__<<jsonobject;
@@ -46,6 +53,28 @@ void Index::frommain(QJsonObject jsonobject){
         emit sendToAF(jsonobject);
     }else if(type=="View_friend_relationships_response"||type == "get_history_response"){
         emit sendToFM(jsonobject);
+        if (type=="View_friend_relationships_response"){
+            model->clear();
+            if(jsonobject.contains("allfriend")&&jsonobject["allfriend"].isArray()){
+                QJsonArray allfriend=jsonobject["allfriend"].toArray();
+                qDebug()<<allfriend;
+                for(QJsonArray::const_iterator it=allfriend.constBegin();it!=allfriend.constEnd();++it){
+                    const auto &item =*it;
+                    if (item.isObject()) {
+                        QJsonObject cu_friend = item.toObject();
+                        qDebug()<<cu_friend;
+                        int status=cu_friend["status"].toInt();
+                        if(!status) continue;
+                        emit createItem(cu_friend);
+                    }
+                }
+            }
+
+        }
+        else if(type=="get_history_response")
+        {
+            emit sendToCHAT(jsonobject);
+        }
     }
 }
 Index::~Index()
@@ -120,5 +149,64 @@ void Index::on_setButton_clicked()
         changeAccount->show();
         setButtonclicked=true;
     }
+}
+void Index::onAgreeButtonClicked(const QJsonObject &js)
+{
+    qDebug()<<__func__<<js;
+    QJsonObject json=js;
+    json["type"]="Agree_the_friend";
+    json["account"]=account;
+    QByteArray byte =QJsonDocument(json).toJson();
+    socket->write(byte);
+}
+
+void Index::onRefuseButtonClicked(const QJsonObject &js)
+{
+    qDebug()<<__func__<<js;
+    QJsonObject json=js;
+    json["type"]="Refuse_the_friend";
+    json["account"]=account;
+    QByteArray byte =QJsonDocument(json).toJson();
+    socket->write(byte);
+}
+
+void Index::onSendMessageButtonClicked(const QJsonObject &js)
+{
+    qDebug()<<__func__<<js;
+    QString friendAccount = js["friend_account"].toString();
+    QString friendName = js["friend_nickname"].toString();
+    if(account==friendAccount){
+        friendName="self";
+    }
+    ChatWindow *chat = new ChatWindow(socket, account, friendAccount,friendName, nullptr);
+    connect(this,&Index::sendToCHAT,chat,&ChatWindow::onReadyRead);
+    chat->show();
+}
+void Index::addFriendItem(const QJsonObject &js)
+{
+    qDebug()<<__func__<<js;
+    // 创建自定义小部件
+    QJsonObject newjs=js;
+    newjs["account"]=account;
+    int status=newjs["status"].toInt();
+    FriendItemWidget* widget = new FriendItemWidget(newjs,this);
+    widget->show();
+    // 连接按钮点击信号
+    connect(widget, &FriendItemWidget::agreeButtonClicked, this, &Index::onAgreeButtonClicked);
+    connect(widget, &FriendItemWidget::refuseButtonClicked, this, &Index::onRefuseButtonClicked);
+    connect(widget, &FriendItemWidget::sendMessageButtonClicked, this, &Index::onSendMessageButtonClicked);
+
+    // 创建一个不可见的项，用于占据空间
+    QStandardItem* item = new QStandardItem();
+    item->setEditable(false);
+    QSize sizeHint = item->sizeHint();
+    sizeHint.setHeight(40); // 设置高度为40
+    item->setSizeHint(sizeHint);
+    // 将小部件添加到视图中
+    int row = model->rowCount();
+    qDebug()<<"row:"<<row;
+    model->insertRow(row, item);
+    qDebug()<<model->index(row,0);
+    ui->messagelistView->setIndexWidget(model->index(row, 0), widget);
 }
 

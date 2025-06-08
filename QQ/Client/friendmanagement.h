@@ -12,7 +12,6 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include "chatwindow.h"
-#include "frienditemwidget.h"
 namespace Ui {
 class FriendManagement;
 }

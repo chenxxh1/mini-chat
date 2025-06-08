@@ -9,6 +9,7 @@
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include "friendmanagement.h"
+#include "chatwindow.h"
 namespace Ui {
 class Index;
 }
@@ -20,6 +21,7 @@ class Index : public QMainWindow
 public:
     explicit Index(QTcpSocket *s,QJsonObject js,QWidget *parent = nullptr);
     ~Index();
+
 
 public slots:
     void closeButtonC();
@@ -33,6 +35,9 @@ public slots:
 
     void on_setButton_clicked();
     void comeback();
+    void onAgreeButtonClicked(const QJsonObject &js);
+    void onRefuseButtonClicked(const QJsonObject &js);
+    void onSendMessageButtonClicked(const QJsonObject &js);
 
 private:
     Ui::Index *ui;
@@ -45,11 +50,18 @@ private:
     QJsonObject jsonOb;
     FriendManagement *fm;//好友管理界面
     QPushButton* changeAccount;//改变账号
+    QStandardItemModel *model;
+    QStandardItemModel *sendToIndexmodel;
+    QMap<QString, ChatWindow*> chatWindowMap;
+    QString account;
+    QString nickname;
+    void addFriendItem(const QJsonObject &js);
 signals:
     void sendToAF(QJsonObject jsonobject);//发送给AF
     void sendToFM(QJsonObject jsonobject);
     void I_close();
-    void createItem(QJsonObject js);
+    void createItem(QJsonObject obj);
+    void sendToCHAT(QJsonObject jsonobject);
 };
 
 #endif // INDEX_H
