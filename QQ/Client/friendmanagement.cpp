@@ -12,6 +12,7 @@ FriendManagement::FriendManagement(QTcpSocket *s,QJsonObject js,QWidget *parent)
     socket=s;
     model=new QStandardItemModel(this);
     account =js["account"].toString();
+    nickname=js["nickname"].toString();
     update();
     connect(ui->closetoolButton,&QToolButton::clicked,this,[this](){
         this->close();
@@ -56,6 +57,9 @@ void FriendManagement::onSendMessageButtonClicked(const QJsonObject &js)
     qDebug()<<__func__<<js;
     QString friendAccount = js["friend_account"].toString();
     QString friendName = js["friend_nickname"].toString();
+    if(account==friendAccount){
+        friendName="self";
+    }
     ChatWindow *chat = new ChatWindow(socket, account, friendAccount,friendName, nullptr);
     connect(this,&FriendManagement::sendToCHAT,chat,&ChatWindow::onReadyRead);
     chat->show();
@@ -69,7 +73,9 @@ void FriendManagement::addFriendItem(const QJsonObject &js)
 {
     qDebug()<<__func__<<js;
     // 创建自定义小部件
-    FriendItemWidget* widget = new FriendItemWidget(js,this);
+    QJsonObject newjs=js;
+    newjs["account"]=account;
+    FriendItemWidget* widget = new FriendItemWidget(newjs,this);
     widget->show();
     // 连接按钮点击信号
     connect(widget, &FriendItemWidget::agreeButtonClicked, this, &FriendManagement::onAgreeButtonClicked);

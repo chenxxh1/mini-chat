@@ -122,8 +122,7 @@ void MainWindow::serverSocket(){
                 this->hide();
                 index =new Index(socket,jsonOb,this);//主
                 connect(index,&Index::I_close,this,[this](){
-                    this->close();
-                     QApplication::quit();
+                    this->show();
                 });
                 connect(this,&MainWindow::sendToIN,index,&Index::frommain);
                 index->show();

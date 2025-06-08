@@ -18,8 +18,7 @@ class Index : public QMainWindow
 public:
     explicit Index(QTcpSocket *s,QJsonObject js,QWidget *parent = nullptr);
     ~Index();
-signals:
-    void I_close();
+
 public slots:
     void closeButtonC();
     void addButton();
@@ -48,6 +47,7 @@ private:
 signals:
     void sendToAF(QJsonObject jsonobject);//发送给AF
     void sendToFM(QJsonObject jsonobject);
+    void I_close();
 };
 
 #endif // INDEX_H

@@ -1,7 +1,7 @@
 #include "chatwindow.h"
 #include "ui_chatwindow.h"
 #include "dragevent.h"
-ChatWindow::ChatWindow(QTcpSocket *socket, const QString &selfAccount, const QString &friendAccount, const QString &friendName,QWidget *parent)
+ChatWindow::ChatWindow(QTcpSocket *socket, const QString &selfAccount, const QString &friendAccount, const QString &friendName, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::ChatWindow)
 {
@@ -13,11 +13,14 @@ ChatWindow::ChatWindow(QTcpSocket *socket, const QString &selfAccount, const QSt
     ui->MessageListWidget->setFocusPolicy(Qt::NoFocus);
     ui->MessageListWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
-    ui->FriendName->setText(friendName);
+
     this->installEventFilter(new DragEvent(this));
     this->socket = socket;
     this->selfAccount = selfAccount;
     this->friendAccount = friendAccount;
+    if(selfAccount!=friendName){
+        ui->FriendName->setText(friendName);
+    }
     qDebug() << "to_user:::" << selfAccount << friendAccount;
 
     getHistory();

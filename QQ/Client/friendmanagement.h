@@ -26,6 +26,7 @@ public:
 private:
     Ui::FriendManagement *ui;
     QString account;
+    QString nickname;
     QTcpSocket *socket;
     QStandardItemModel *model;
     QMap<QString, ChatWindow*> chatWindowMap;

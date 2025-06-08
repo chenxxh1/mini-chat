@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>11</string>
+    <string>文件传输助手</string>
    </property>
   </widget>
   <widget class="QPushButton" name="SendButton">
@@ -62,13 +62,13 @@
     </rect>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>10</y>
      <width>681</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">

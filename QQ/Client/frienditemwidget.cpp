@@ -5,6 +5,10 @@ FriendItemWidget::FriendItemWidget(const QJsonObject &js, QWidget *parent): QWid
     jsonobject=js;
     QString account=js["friend_account"].toString();
     QString nickname=js["friend_nickname"].toString();
+    QString v_account=js["account"].toString();
+    if(v_account==account){
+        nickname="self";
+    }
     int status=js["status"].toInt();
     QString message = QString("账号: %1, 昵称: %2").arg(account, nickname);
     messageLabel=new QLabel(message);

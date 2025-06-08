@@ -22,7 +22,7 @@ class ChatWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit ChatWindow(QTcpSocket *socket, const QString &selfAccount, const QString &friendAccount, const QString &friendName, QWidget *parent = nullptr);
+    explicit ChatWindow(QTcpSocket *socket, const QString &selfAccount,const QString &friendAccount, const QString &friendName, QWidget *parent = nullptr);
     ~ChatWindow();
     void receiveMessage(const QJsonObject &js);
     void getHistory();

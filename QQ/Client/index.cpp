@@ -31,6 +31,7 @@ Index::Index(QTcpSocket *s,QJsonObject js,QWidget *parent)
     addFriendOrGroupButton->hide();
     connect(ui->addToolButton,&QToolButton::clicked,this,&Index::addButton);
     connect(ui->friendButton,&QPushButton::clicked,this,&Index::on_friendButton_clicked);
+    connect(changeAccount,&QPushButton::clicked,this,&Index::closeButtonC);
     connect(addFriendOrGroupButton,&QPushButton::clicked,this,&Index::addFriend);
     connect(createGroupButton,&QPushButton::clicked,this,&Index::createGroup);
     connect(addF,&AddFriend::Add_close,this,&Index::comeback);
@@ -62,6 +63,7 @@ void Index::comeback(){
 void Index::createGroup(){
     qDebug()<<__func__;
 }
+
 void Index::closeButtonC(){
     this->close();
     emit I_close();
