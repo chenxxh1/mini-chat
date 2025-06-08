@@ -1,18 +1,27 @@
 #include "chatwindow.h"
 #include "ui_chatwindow.h"
 #include "dragevent.h"
-ChatWindow::ChatWindow(QTcpSocket *socket, const QString &selfAccount, const QString &friendAccount, QWidget *parent)
+ChatWindow::ChatWindow(QTcpSocket *socket, const QString &selfAccount, const QString &friendAccount, const QString &friendName,QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::ChatWindow)
 {
     ui->setupUi(this);
     setWindowFlag(Qt::FramelessWindowHint);
+
+    ui->MessageListWidget->setSpacing(5);
+    ui->MessageListWidget->setSelectionMode(QAbstractItemView::NoSelection);
+    ui->MessageListWidget->setFocusPolicy(Qt::NoFocus);
+    ui->MessageListWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+
+    ui->FriendName->setText(friendName);
     this->installEventFilter(new DragEvent(this));
     this->socket = socket;
     this->selfAccount = selfAccount;
     this->friendAccount = friendAccount;
     qDebug() << "to_user:::" << selfAccount << friendAccount;
+
     getHistory();
+
     connect(ui->close,&QToolButton::clicked,this,&ChatWindow::on_close_triggered);
 }
 
@@ -23,7 +32,7 @@ ChatWindow::~ChatWindow()
 
 void ChatWindow::on_SendButton_clicked()
 {
-    QString text = ui->EditArea->text();
+    QString text = ui->EditArea->toPlainText();
     if (text.isEmpty()) return;
 
     QJsonObject object;
@@ -36,14 +45,18 @@ void ChatWindow::on_SendButton_clicked()
     QByteArray data = QJsonDocument(object).toJson();
     socket->write(data);
 
-    ui->InformationArea->append("我: " + text);
+    QString messageLine = "[" + object["time"].toString() + "] 我: " + text;
+    addMessageToList(messageLine, true);
     ui->EditArea->clear();
 }
 
 void ChatWindow::receiveMessage(const QJsonObject &js) {
     qDebug()<<__func__<<js;
     if (js["from"].toString() == friendAccount) {
-       ui->InformationArea->append(friendAccount + ": " + js["content"].toString());
+        QString time = js["time"].toString();
+        QString content = js["content"].toString();
+        QString messageLine = "[" + time + "] " + js["name"].toString() + ": " + content;
+        addMessageToList(messageLine, false);
     }
 }
 
@@ -66,8 +79,11 @@ void ChatWindow::onReadyRead(QJsonObject jsonobject)
             QString content = msg["content"].toString();
             QString time = msg["time"].toString();
             QString name = msg["name"].toString();
-            QString messageLine = "[" + time + "] " + sender + name + ": " + content;
-            ui->InformationArea->append(messageLine); // or add time if needed
+            QString displayMsg;
+
+            QString messageLine = "[" + time + "] " + name + ": " + content;
+            bool isOwn = (sender == selfAccount);
+            addMessageToList(messageLine, isOwn);
         }
     }
 
@@ -87,4 +103,14 @@ void ChatWindow::getHistory()
     json["to"] = this->friendAccount;
     QByteArray data = QJsonDocument(json).toJson();
     socket->write(data);
+}
+
+void ChatWindow::addMessageToList(const QString &text, bool isOwnMessage)
+{
+    QListWidgetItem *item = new QListWidgetItem(ui->MessageListWidget);
+    MessageBubbleWidget *bubble = new MessageBubbleWidget(text, isOwnMessage);
+    item->setSizeHint(bubble->sizeHint());
+    ui->MessageListWidget->addItem(item);
+    ui->MessageListWidget->setItemWidget(item, bubble);
+    ui->MessageListWidget->scrollToBottom();
 }

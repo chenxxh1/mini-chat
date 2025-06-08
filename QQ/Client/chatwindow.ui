@@ -6,9 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>589</width>
-    <height>417</height>
+    <width>696</width>
+    <height>519</height>
    </rect>
+  </property>
+  <property name="cursor">
+   <cursorShape>ArrowCursor</cursorShape>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -26,34 +29,11 @@
     <string>11</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="InformationArea">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>40</y>
-     <width>500</width>
-     <height>241</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="EditArea">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>290</y>
-     <width>500</width>
-     <height>91</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QPushButton" name="SendButton">
    <property name="geometry">
     <rect>
-     <x>490</x>
-     <y>390</y>
+     <x>620</x>
+     <y>480</y>
      <width>51</width>
      <height>20</height>
     </rect>
@@ -62,18 +42,57 @@
     <string>发送</string>
    </property>
   </widget>
-  <widget class="QToolButton" name="close">
+  <widget class="QTextEdit" name="EditArea">
    <property name="geometry">
     <rect>
-     <x>540</x>
-     <y>10</y>
-     <width>21</width>
-     <height>19</height>
+     <x>40</x>
+     <y>340</y>
+     <width>631</width>
+     <height>131</height>
     </rect>
    </property>
-   <property name="text">
-    <string>X</string>
+  </widget>
+  <widget class="QListWidget" name="MessageListWidget">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>40</y>
+     <width>631</width>
+     <height>291</height>
+    </rect>
    </property>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>681</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <spacer name="horizontalSpacer">
+      <property name="orientation">
+       <enum>Qt::Orientation::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QToolButton" name="close">
+      <property name="text">
+       <string>X</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

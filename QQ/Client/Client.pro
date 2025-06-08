@@ -18,6 +18,7 @@ SOURCES += \
     information.cpp \
     main.cpp \
     mainwindow.cpp \
+    messagebubblewidget.cpp \
     registerwindow.cpp \
 
 HEADERS += \
@@ -29,6 +30,7 @@ HEADERS += \
     index.h \
     information.h \
     mainwindow.h \
+    messagebubblewidget.h \
     registerwindow.h \
     registerwindow.h
 

@@ -55,7 +55,8 @@ void FriendManagement::onSendMessageButtonClicked(const QJsonObject &js)
 {
     qDebug()<<__func__<<js;
     QString friendAccount = js["friend_account"].toString();
-    ChatWindow *chat = new ChatWindow(socket, account, friendAccount, nullptr);
+    QString friendName = js["friend_nickname"].toString();
+    ChatWindow *chat = new ChatWindow(socket, account, friendAccount,friendName, nullptr);
     connect(this,&FriendManagement::sendToCHAT,chat,&ChatWindow::onReadyRead);
     chat->show();
 }
