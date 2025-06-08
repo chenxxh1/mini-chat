@@ -9,7 +9,7 @@ Widget::Widget(QWidget *parent)
     server = new QTcpServer;
     server->listen(QHostAddress::AnyIPv4,8000);
     db =QSqlDatabase ::addDatabase("QMYSQL");
-    db.setDatabaseName("mychat");
+    db.setDatabaseName("mydb");
     db.setHostName("localhost");
     db.setUserName("root");
     db.setPassword("root");
@@ -72,6 +72,40 @@ void Widget::findallfriend(const QString &account,QJsonObject &response)
     response["type"]="View_friend_relationships_response";
     response["allfriend"]=allfriend;
 }
+
+QString Widget::crypassword(QString password)
+{
+    QCryptographicHash Md5(QCryptographicHash::Md5);
+    QCryptographicHash Sha256(QCryptographicHash::Sha256);
+    QCryptographicHash RealSha3_384(QCryptographicHash::RealSha3_384);
+    Md5.addData(password.toUtf8());
+    QByteArray result = Md5.result();
+    Sha256.addData(result);
+    result = Sha256.result();
+    RealSha3_384.addData(result);
+    result = RealSha3_384.result();
+
+    // 截取前19个字符
+    QString shortenedResult = QString(result.toHex()).left(19);
+
+    return shortenedResult;
+}
+
+bool Widget::insertFrinend(QString v_account, QString account, int status)
+{
+    QSqlQuery query;
+    query.prepare("insert into friendships(user1_account,user2_account,status) values(:v_account,:account,:status);");
+    query.bindValue(":v_account",v_account);
+    query.bindValue(":account",account);
+    query.bindValue(":status",status);
+    if(query.exec()){
+        qDebug()<<"插入成功";
+        return true;
+    }else{
+        qDebug()<<query.lastError();
+    }
+    return false;
+}
 void Widget::newClient(){
     QTcpSocket *newsocket =server->nextPendingConnection();
     QString ip =newsocket->peerAddress().toString();
@@ -97,6 +131,7 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
         if(type=="login"){
             QString account = jsonObject.value("account").toString();
             QString password = jsonObject.value("password").toString();
+            password=crypassword(password);
             QString Seip =jsonObject.value("senderIp").toString();
             QString Seport=jsonObject.value("senderPort").toString();
             QString message = QString("Login request: Account: %1, Password: %2 "
@@ -153,6 +188,7 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
             }
             QString nickname =jsonObject.value("nickname").toString();
             QString password = jsonObject.value("password").toString();
+            password=crypassword(password);
             QString Seip =jsonObject.value("senderIp").toString();
             QString Seport=jsonObject.value("senderPort").toString();
             QString message = QString("Register request: Account: %1, Password: %2 "
@@ -175,6 +211,10 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
                 response["status"] = "success";
                 response["message"] = "Registration successful";
                 response["account"] = account; // 返回生成的账号
+
+                //将自己与自己建立好友关系
+                insertFrinend(account,account,1);
+
             } else {
                 QString errorMessage = QString("Registration failed: Error: %1")
                 .arg(query.lastError().text());
@@ -185,9 +225,6 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
             }
             //返回注册信息
         }else if(type=="addFriend_search"){
-            //信息
-            // QString sendaccount=jsonObject.value("sendaccount").toString();
-            // QString sendnickname=jsonObject.value("sendnickname").toString();
             QString message=jsonObject.value("message").toString();
             //在数据库中搜索
             //提供两种搜索方式，nickname，account
@@ -257,15 +294,9 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
             QString v_account=jsonObject["v_account"].toString();
             QString account=jsonObject["account"].toString();
             qDebug()<<v_account<<"  "<<account;
-            QSqlQuery query;
-            query.prepare("insert into friendships(user1_account,user2_account,status) values(:v_account,:account,0);");
-            query.bindValue(":v_account",v_account);
-            query.bindValue(":account",account);
-            if(query.exec()){
+            if(insertFrinend(v_account,account,0)){
                 response["result"]="insert_successed";
-                qDebug()<<"插入成功";
             }else{
-                qDebug()<<query.lastError();
                 response["result"]="insert_not_successed";
             }
         }else if(type=="View_friend_relationships"){

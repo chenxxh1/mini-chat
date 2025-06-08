@@ -27,7 +27,6 @@ Information::Information(QTcpSocket *s, QJsonObject v,QString message, QWidget *
     ui->nicknamelabel->setText(nickname);
     ui->accountlabel->setText(account);
     QByteArray byte=QJsonDocument(jsonObject).toJson();
-
     socket->write(byte);
     connect(ui->closetoolButton,&QToolButton::clicked,this,[this](){
         this->close();

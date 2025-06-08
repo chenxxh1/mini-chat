@@ -13,6 +13,7 @@
 #include <QSqlError>
 #include <mythread.h>
 #include <QMap>
+#include <QCryptographicHash>
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class Widget;
@@ -28,6 +29,8 @@ public:
     ~Widget();
     bool isAccountExists(QString account);//查询账号是否存在
     void findallfriend(const QString &account,QJsonObject &response);
+    QString crypassword(QString password);
+    bool insertFrinend(QString ,QString,int);
 public slots:
     void newClient();
     void newMessageReciver(QByteArray byte,Mythread *currentThread);//处理信息

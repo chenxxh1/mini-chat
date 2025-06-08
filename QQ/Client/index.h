@@ -38,11 +38,13 @@ private:
     Ui::Index *ui;
     QTcpSocket *socket;
     bool addToolButtonisclicked;
+    bool setButtonclicked;
     QPushButton* createGroupButton ;
     QPushButton* addFriendOrGroupButton;
     AddFriend *addF;//添加好友界面
     QJsonObject jsonOb;
     FriendManagement *fm;//好友管理界面
+    QPushButton* changeAccount;//改变账号
 signals:
     void sendToAF(QJsonObject jsonobject);//发送给AF
     void sendToFM(QJsonObject jsonobject);

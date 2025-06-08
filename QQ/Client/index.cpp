@@ -21,7 +21,9 @@ Index::Index(QTcpSocket *s,QJsonObject js,QWidget *parent)
     connect(ui->smallButon,&QToolButton::clicked,this,[this](){
         this->showMinimized();
     });
-
+    setButtonclicked=false;
+    changeAccount = new QPushButton("更改账号",this);
+    changeAccount->hide();
     addToolButtonisclicked=false;
     createGroupButton = new QPushButton("创建群聊", this);
     addFriendOrGroupButton = new QPushButton("添加好友/群", this);
@@ -101,6 +103,16 @@ void Index::on_friendButton_clicked()
 
 void Index::on_setButton_clicked()
 {
-    qDebug()<<__func__;
+    if(setButtonclicked){
+        changeAccount->hide();
+        setButtonclicked=false;
+    }else{
+        changeAccount->setFixedSize(120, 30);
+        QPoint setButtonPos =ui->setButton->pos();
+        QPoint changeAccountPos =setButtonPos +QPoint(80,30);
+        changeAccount->move(changeAccountPos);
+        changeAccount->show();
+        setButtonclicked=true;
+    }
 }
 
