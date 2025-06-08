@@ -11,6 +11,7 @@
 #include <QByteArray>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include "chatwindow.h"
 namespace Ui {
 class FriendManagement;
 }
@@ -27,7 +28,9 @@ private:
     QString account;
     QTcpSocket *socket;
     QStandardItemModel *model;
+    QMap<QString, ChatWindow*> chatWindowMap;
     void addFriendItem(const QJsonObject &js);
+
 public slots:
     void fromIN(QJsonObject jsonobject);
     void update();
@@ -36,7 +39,9 @@ public slots:
     void onSendMessageButtonClicked(const QJsonObject &js);
 
 signals:
+    void createItem(QJsonObject obj);
     void FM_close();
+    void sendToCHAT(QJsonObject jsonobject);
 };
 
 #endif // FRIENDMANAGEMENT_H

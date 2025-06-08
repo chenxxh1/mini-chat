@@ -9,7 +9,7 @@ Widget::Widget(QWidget *parent)
     server = new QTcpServer;
     server->listen(QHostAddress::AnyIPv4,8000);
     db =QSqlDatabase ::addDatabase("QMYSQL");
-    db.setDatabaseName("mydb");
+    db.setDatabaseName("mychat");
     db.setHostName("localhost");
     db.setUserName("root");
     db.setPassword("root");
@@ -127,6 +127,7 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
                         response["id"]=storeId;
                         currentThread->setAccount(storeAccount);
                         threadInfo[storeAccount]=currentThread;//将登录成功的信息加入线程信息
+                        userSocketMap[storeAccount] = socket;
                     }else{
                         //密码错误
                         response["status"] = "failure";
@@ -298,6 +299,83 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
                 qDebug()<<query.lastError();
             }
         }
+        else if(type == "chat_message"){
+            QString from = jsonObject["from"].toString();
+            QString to = jsonObject["to"].toString();
+            qDebug() << "to_user:::" << from << to;
+            QString content = jsonObject["content"].toString();
+            QString time = jsonObject["time"].toString(); // 可以加时间字段
+
+            QJsonObject chatData;
+            chatData["type"] = "chat_message";
+            chatData["from"] = from;
+            chatData["to"] = to;
+            chatData["content"] = content;
+            chatData["time"] = time;
+
+            QJsonDocument doc(chatData);
+            QByteArray data = doc.toJson();
+            QSqlQuery saveChat;
+            saveChat.prepare("INSERT INTO messages (sender, receiver, content, time) VALUES (:from, :to, :content, :time)");
+            saveChat.bindValue(":from", from);
+            saveChat.bindValue(":to", to);
+            saveChat.bindValue(":content", content);
+            saveChat.bindValue(":time", time);
+            if (!saveChat.exec()) {
+                qDebug() << "Failed to save message:" << saveChat.lastError().text();
+            }
+
+            if(userSocketMap.contains(to)) {
+                userSocketMap[to]->write(data); // 转发给对方
+                response["status"] = "sent";
+            } else {
+                response["status"] = "offline"; // 对方不在线
+            }
+        }
+        else if(type == "get_history") {
+            QString a1 = jsonObject["from"].toString();
+            QString a2 = jsonObject["to"].toString();
+
+            QSqlQuery query;
+            query.prepare("SELECT sender, receiver, content, time FROM messages WHERE "
+                          "(sender = :a1 AND receiver = :a2) OR (sender = :a2 AND receiver = :a1) "
+                          "ORDER BY time ASC");
+            query.bindValue(":a1", a1);
+            query.bindValue(":a2", a2);
+
+            QMap<QString, QString> nicknameMap;
+            QSqlQuery nicknameQuery;
+            nicknameQuery.prepare("SELECT account, nickname FROM users WHERE account = :a1 OR account = :a2");
+            nicknameQuery.bindValue(":a1", a1);
+            nicknameQuery.bindValue(":a2", a2);
+            if (nicknameQuery.exec()) {
+                while (nicknameQuery.next()) {
+                    QString account = nicknameQuery.value("account").toString();
+                    QString nickname = nicknameQuery.value("nickname").toString();
+                    nicknameMap[account] = nickname;
+                }
+            }
+
+            QJsonArray msgArray;
+            if (query.exec()) {
+                while (query.next()) {
+                    QString sender = query.value("sender").toString();
+                    QJsonObject msg;
+                    msg["name"] = nicknameMap.value(sender, sender);
+                    msg["from"] = sender;
+                    msg["to"] = query.value("receiver").toString();
+                    msg["content"] = query.value("content").toString();
+                    msg["time"] = query.value("time").toString();
+                    msgArray.append(msg);
+                }
+            }
+
+            response["type"] = "get_history_response";
+            response["messages"] = msgArray;
+
+
+        }
+
     }
     responseData = QJsonDocument(response).toJson();
     socket->write(responseData);
@@ -307,6 +385,7 @@ void Widget::disClient(QByteArray byte,Mythread *t){
     ui->messageList->addItem(message);
     QString account =t->getAccount();
     threadInfo.remove(account);
+    userSocketMap.remove(account);
     //qDebug()<<account;
 }
 

@@ -135,7 +135,7 @@ void MainWindow::serverSocket(){
         }else if(type=="addFriend_searcher_reponse"
                    ||type=="checkFriend_response"
                    ||type=="friend_request_response"
-                   ||type=="View_friend_relationships_response"){
+                   ||type=="View_friend_relationships_response"||type == "get_history_response"){
             emit sendToIN(jsonObject);
         }
     }

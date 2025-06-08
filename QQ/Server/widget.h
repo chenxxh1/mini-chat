@@ -41,5 +41,6 @@ private:
     QTcpServer *server;
     QSqlDatabase db;
     QMap<QString,Mythread*>threadInfo;
+    QMap<QString, QTcpSocket*> userSocketMap;
 };
 #endif // WIDGET_H

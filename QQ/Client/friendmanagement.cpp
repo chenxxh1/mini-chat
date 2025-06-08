@@ -17,6 +17,7 @@ FriendManagement::FriendManagement(QTcpSocket *s,QJsonObject js,QWidget *parent)
         this->close();
         emit FM_close();
     });
+    connect(this,&FriendManagement::createItem,this,&FriendManagement::addFriendItem);
     ui->messagelistView->setModel(model);
     // 设置 QListView 的大小调整策略
     ui->messagelistView->setResizeMode(QListView::Adjust);
@@ -53,6 +54,10 @@ void FriendManagement::onRefuseButtonClicked(const QJsonObject &js)
 void FriendManagement::onSendMessageButtonClicked(const QJsonObject &js)
 {
     qDebug()<<__func__<<js;
+    QString friendAccount = js["friend_account"].toString();
+    ChatWindow *chat = new ChatWindow(socket, account, friendAccount, nullptr);
+    connect(this,&FriendManagement::sendToCHAT,chat,&ChatWindow::onReadyRead);
+    chat->show();
 }
 FriendManagement::~FriendManagement()
 {
@@ -85,10 +90,10 @@ void FriendManagement::addFriendItem(const QJsonObject &js)
 }
 
 void FriendManagement::fromIN(QJsonObject jsonobject){
-    model->clear();
     qDebug()<<__func__<<jsonobject;
     QString type=jsonobject["type"].toString();
     if (type=="View_friend_relationships_response"){
+        model->clear();
         if(jsonobject.contains("allfriend")&&jsonobject["allfriend"].isArray()){
             QJsonArray allfriend=jsonobject["allfriend"].toArray();
             qDebug()<<allfriend;
@@ -97,10 +102,14 @@ void FriendManagement::fromIN(QJsonObject jsonobject){
                 if (item.isObject()) {
                     QJsonObject cu_friend = item.toObject();
                     qDebug()<<cu_friend;
-                    addFriendItem(cu_friend);
+                    emit createItem(cu_friend);
                 }
             }
         }
+    }
+    else if(type=="get_history_response")
+    {
+        emit sendToCHAT(jsonobject);
     }
 
 }

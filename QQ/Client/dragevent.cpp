@@ -4,7 +4,7 @@ DragEvent::DragEvent(QObject *parent)
     : QObject{parent}
 {}
 bool DragEvent::eventFilter(QObject* object,QEvent* event){
-    auto m =dynamic_cast<QMainWindow*>(object);
+    auto m =dynamic_cast<QWidget*>(object);
     if(!m){
         return false;
     }

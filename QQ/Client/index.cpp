@@ -41,7 +41,7 @@ void Index::frommain(QJsonObject jsonobject){
         ||type=="checkFriend_response"
         ||type=="friend_request_response"){
         emit sendToAF(jsonobject);
-    }else if(type=="View_friend_relationships_response"){
+    }else if(type=="View_friend_relationships_response"||type == "get_history_response"){
         emit sendToFM(jsonobject);
     }
 
