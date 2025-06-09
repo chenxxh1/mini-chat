@@ -20,7 +20,6 @@ AddFriend::AddFriend(QTcpSocket *s,QJsonObject js,QWidget *parent)
     connect(ui->resultlistView,&QListView::clicked,this,&AddFriend::viewClickedSlots);
 }
 void AddFriend::viewClickedSlots(const QModelIndex& index){
-    //qDebug()<<index.data().toString();
     QString message=index.data().toString();
     delete info;
     info=new Information(socket,jsonOb,message,this);
@@ -43,9 +42,7 @@ void AddFriend::fromIN(QJsonObject jsonobject){
                     QJsonObject userObject = item.toObject();
                     QString account = userObject["account"].toString();
                     QString nickname = userObject["nickname"].toString();
-                    //qDebug() << "User:" << account << nickname;
                     QString message=QString("账号：%1，昵称：%2").arg(account,nickname);
-                    //qDebug()<<message;
                     QStandardItem *item =new QStandardItem(message);
                     model->appendRow(item);
                 }
@@ -70,6 +67,5 @@ void AddFriend::on_searchlindEdit()
 
     QByteArray byte =QJsonDocument(object).toJson();
     socket->write(byte);
-    //qDebug()<<object;
 }
 

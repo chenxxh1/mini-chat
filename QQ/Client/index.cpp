@@ -188,7 +188,7 @@ void Index::addFriendItem(const QJsonObject &js)
     // 创建自定义小部件
     QJsonObject newjs=js;
     newjs["account"]=account;
-    int status=newjs["status"].toInt();
+    newjs["type"]="INDEX";
     FriendItemWidget* widget = new FriendItemWidget(newjs,this);
     widget->show();
     // 连接按钮点击信号

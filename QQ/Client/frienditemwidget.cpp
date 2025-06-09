@@ -6,6 +6,7 @@ FriendItemWidget::FriendItemWidget(const QJsonObject &js, QWidget *parent): QWid
     QString account=js["friend_account"].toString();
     QString nickname=js["friend_nickname"].toString();
     QString v_account=js["account"].toString();
+    QString type=js["type"].toString();
     if(v_account==account){
         nickname="self";
     }
@@ -31,24 +32,38 @@ FriendItemWidget::FriendItemWidget(const QJsonObject &js, QWidget *parent): QWid
     agreeButton = new QPushButton("同意", this);
     refuseButton = new QPushButton("拒绝", this);
     sendMessageButton = new QPushButton("发送信息", this);
+    deleteButton=new QPushButton("删除好友",this);
 
     // 设置按钮大小和大小策略
     agreeButton->setFixedSize(80, 30);
     refuseButton->setFixedSize(80, 30);
-    sendMessageButton->setFixedSize(100, 30);
+    if(type=="FRIENDMANAGEMENT"){
+        sendMessageButton->setFixedSize(80, 30);
+        deleteButton->setFixedSize(80,30);
+        sendMessageButton->setVisible(status == 1);
+        deleteButton->setVisible(status == 1);
+    }else{
+        sendMessageButton->setVisible(status == 1);
+        deleteButton->setVisible(0);
+    }
+
+
     agreeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     refuseButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     sendMessageButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    deleteButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+
 
     // 根据状态设置按钮的可见性
     agreeButton->setVisible(status == 0);
     refuseButton->setVisible(status == 0);
-    sendMessageButton->setVisible(status == 1);
+
 
     // 添加按钮到布局
     layout->addWidget(agreeButton);
     layout->addWidget(refuseButton);
     layout->addWidget(sendMessageButton);
+    layout->addWidget(deleteButton);
 
     // 设置布局
     this->setLayout(layout);
@@ -65,4 +80,10 @@ FriendItemWidget::FriendItemWidget(const QJsonObject &js, QWidget *parent): QWid
     connect(sendMessageButton, &QPushButton::clicked, this, [this]() {
         emit sendMessageButtonClicked(jsonobject);
     });
+
+    connect(deleteButton, &QPushButton::clicked, this, [this]() {
+        qDebug()<<"deleteButton点击"<<jsonobject;
+        emit deleteButtonClicked(jsonobject);
+    });
+
 }

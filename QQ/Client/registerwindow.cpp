@@ -36,8 +36,6 @@ void Register::on_RegisterIn_clicked()
     QString name =ui->Name->text();
     QString firstP =ui->PassWord->text();
     QString secondP =ui->ConfirmWord->text();
-    qDebug()<<firstP;
-    qDebug()<<secondP;
     if(firstP!=secondP){
         QMessageBox::warning(this,"警告","两次输入不同");
     }else{
@@ -45,10 +43,6 @@ void Register::on_RegisterIn_clicked()
         jsonObject["nickname"]=name;
         jsonObject["password"]=firstP;
         jsonObject["type"]="register";//数据类型
-        jsonObject["senderIp"]=socket->localAddress().toString();
-        jsonObject["senderPort"]=QString::number(socket->localPort());
-        jsonObject["receiverIp"]=socket->peerAddress().toString();
-        jsonObject["receiverPort"]=QString::number(socket->peerPort());
         QJsonDocument document(jsonObject);
         QByteArray byte =document.toJson();
         socket->write(byte);

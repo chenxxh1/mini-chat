@@ -22,11 +22,13 @@ signals:
     void agreeButtonClicked(const QJsonObject &js);
     void refuseButtonClicked(const QJsonObject &js);
     void sendMessageButtonClicked(const QJsonObject &js);
+    void deleteButtonClicked(const QJsonObject &js);
 private:
     QLabel* messageLabel;
     QPushButton* agreeButton;
     QPushButton* refuseButton;
     QPushButton* sendMessageButton;
+    QPushButton* deleteButton;
     QJsonObject jsonobject;
 };
 

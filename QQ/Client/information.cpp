@@ -41,10 +41,8 @@ Information::~Information()
 }
 void Information::fromAD(QJsonObject jsonobject){
     QString type =jsonobject["type"].toString();
-    qDebug()<<type;
     if(type=="checkFriend_response"){
         QString is_friend=jsonobject["result"].toString();
-        //qDebug()<<is_friend;
         if(is_friend=="is not friend"){
             ui->sendpushButton->setText("发送好友申请");
         }

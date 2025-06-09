@@ -64,6 +64,15 @@ void FriendManagement::onSendMessageButtonClicked(const QJsonObject &js)
     connect(this,&FriendManagement::sendToCHAT,chat,&ChatWindow::onReadyRead);
     chat->show();
 }
+
+void FriendManagement::onDeleteButtonClicked(const QJsonObject &js){
+    qDebug()<<__func__<<js;
+    QJsonObject json=js;
+    json["type"]="Delete_the_friend";
+    json["account"]=account;
+    QByteArray byte =QJsonDocument(json).toJson();
+    socket->write(byte);
+}
 FriendManagement::~FriendManagement()
 {
     delete ui;
@@ -75,13 +84,15 @@ void FriendManagement::addFriendItem(const QJsonObject &js)
     // 创建自定义小部件
     QJsonObject newjs=js;
     newjs["account"]=account;
-    int status=newjs["status"].toInt();
+    newjs["type"]="FRIENDMANAGEMENT";//用于判断是否显示出删除好友按钮
     FriendItemWidget* widget = new FriendItemWidget(newjs,this);
     widget->show();
     // 连接按钮点击信号
+    connect(widget, &FriendItemWidget::deleteButtonClicked,this,&FriendManagement::onDeleteButtonClicked);
     connect(widget, &FriendItemWidget::agreeButtonClicked, this, &FriendManagement::onAgreeButtonClicked);
     connect(widget, &FriendItemWidget::refuseButtonClicked, this, &FriendManagement::onRefuseButtonClicked);
     connect(widget, &FriendItemWidget::sendMessageButtonClicked, this, &FriendManagement::onSendMessageButtonClicked);
+
 
     // 创建一个不可见的项，用于占据空间
     QStandardItem* item = new QStandardItem();
@@ -109,7 +120,6 @@ void FriendManagement::fromIN(QJsonObject jsonobject){
                 const auto &item =*it;
                 if (item.isObject()) {
                     QJsonObject cu_friend = item.toObject();
-                    qDebug()<<cu_friend;
                     emit createItem(cu_friend);
                 }
             }

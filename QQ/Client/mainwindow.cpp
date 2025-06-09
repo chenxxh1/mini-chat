@@ -56,18 +56,9 @@ void MainWindow::on_LogButton_clicked() // 登录
     jsonObject["account"] = account;
     jsonObject["password"] = password;
     jsonObject["type"]="login";//数据类型
-    jsonObject["senderIp"]=socket->localAddress().toString();
-    jsonObject["senderPort"]=QString::number(socket->localPort());
-    jsonObject["receiverIp"]=socket->peerAddress().toString();
-    jsonObject["receiverPort"]=QString::number(socket->peerPort());
     // 将 JSON 对象转换为 QByteArray
     QJsonDocument document(jsonObject);
     QByteArray data = document.toJson();
-
-    // 打印调试信息
-    //qDebug() << "Sending data:" << data;
-
-    // 发送数据
     socket->write(data);
 }
 

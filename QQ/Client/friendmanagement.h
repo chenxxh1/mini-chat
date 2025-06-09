@@ -39,7 +39,7 @@ public slots:
     void onAgreeButtonClicked(const QJsonObject &js);
     void onRefuseButtonClicked(const QJsonObject &js);
     void onSendMessageButtonClicked(const QJsonObject &js);
-
+    void onDeleteButtonClicked(const QJsonObject &js);
 signals:
     void createItem(QJsonObject obj);
     void FM_close();
