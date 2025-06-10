@@ -24,7 +24,6 @@ void MessageBubbleWidget::setupUi(const QString &text, bool isOwnMessage)
     messageLabel->setWordWrap(true);
     messageLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
     messageLabel->setContentsMargins(10, 6, 10, 6);
-    messageLabel->setMaximumWidth(350);
     messageLabel->setStyleSheet("font-size: 14px;");
 
     // 气泡背景控件
@@ -37,7 +36,8 @@ void MessageBubbleWidget::setupUi(const QString &text, bool isOwnMessage)
     bubble->setStyleSheet(isOwnMessage
                               ? "background-color: #d4f4dd; border-radius: 12px;"  //  自己的消息为浅绿色
                               : "background-color: #fddde6; border-radius: 12px;"); //  对方消息为浅粉色
-    bubble->setFixedWidth(320);
+    bubble->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred); // 宽度根据内容自动调整
+    bubble->setMaximumWidth(350); // 设置最大宽度，超过则自动换行
 
     // 气泡左右对齐
     if (isOwnMessage) {

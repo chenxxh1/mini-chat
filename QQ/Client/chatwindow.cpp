@@ -12,17 +12,34 @@ ChatWindow::ChatWindow(QTcpSocket *socket, const QString &selfAccount, const QSt
     ui->MessageListWidget->setSelectionMode(QAbstractItemView::NoSelection);
     ui->MessageListWidget->setFocusPolicy(Qt::NoFocus);
     ui->MessageListWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-
+    ui->MessageListWidget->setStyleSheet(R"(
+    QListWidget {
+        background: transparent;
+        border: none;
+    }
+    QListWidget::item {
+        background: transparent;
+        border: none;
+        margin: 0px;
+        padding: 0px;
+    }
+    QListWidget::item:hover {
+        background: transparent;
+    }
+    QListWidget::item:selected {
+        background: transparent;
+    }
+    )");
 
     this->installEventFilter(new DragEvent());
     this->socket = socket;
     this->selfAccount = selfAccount;
     this->friendAccount = friendAccount;
+    this->friendName = friendName;
     if(selfAccount!=friendName){
         ui->FriendName->setText(friendName);
     }
     qDebug() << "to_user:::" << selfAccount << friendAccount;
-
     getHistory();
 
     connect(ui->close,&QToolButton::clicked,this,&ChatWindow::on_close_triggered);
@@ -53,8 +70,8 @@ void ChatWindow::on_SendButton_clicked()
     QByteArray data = QJsonDocument(object).toJson();
     socket->write(data);
 
-    QString messageLine = "[" + object["time"].toString() + "] 我: " + text;
-    addMessageToList(messageLine, true);
+    QString messageLine =  text;
+    addMessageToList(messageLine, "皇帝",true);
     ui->EditArea->clear();
 }
 
@@ -63,8 +80,8 @@ void ChatWindow::receiveMessage(const QJsonObject &js) {
     if (js["from"].toString() == friendAccount) {
         QString time = js["time"].toString();
         QString content = js["content"].toString();
-        QString messageLine = "[" + time + "] " + js["name"].toString() + ": " + content;
-        addMessageToList(messageLine, false);
+        QString messageLine = content;
+        addMessageToList(messageLine, js["name"].toString(),false);
     }
 }
 
@@ -74,7 +91,7 @@ void ChatWindow::onReadyRead(QJsonObject jsonobject)
     qDebug() << "Data arrived";
 
     QJsonObject obj = jsonobject;
-    qDebug() << "JSON type:" << obj["type"].toString();          
+    qDebug() << "JSON type:" << obj["type"].toString();
     QString type = obj["type"].toString();
     if (type == "chat_message") {
         receiveMessage(obj);
@@ -87,16 +104,18 @@ void ChatWindow::onReadyRead(QJsonObject jsonobject)
             QString content = msg["content"].toString();
             QString time = msg["time"].toString();
             QString name = msg["name"].toString();
-            QString displayMsg;
-            QString messageLine;
-            bool isOwn = (sender == selfAccount);
-            if(isOwn){
-                messageLine = "[" + time + "] 我" + ": " + content;
-            }else{
-                messageLine = "[" + time + "] " + name + ": " + content;
+            QDateTime timestamp = QDateTime::fromString(time, "yyyy-MM-dd HH:mm:ss");
+            if(lastMessageTime.isNull()||lastMessageTime.date() != timestamp.date() ||lastMessageTime.secsTo(timestamp) > TIME_THRESHOLD_SECONDS)
+            {
+                QListWidgetItem* item = new QListWidgetItem(ui->MessageListWidget);
+                QWidget *timeWidget = createTimeLabel(time);
+                item->setSizeHint(timeWidget->sizeHint());
+                ui->MessageListWidget->addItem(item);
+                ui->MessageListWidget->setItemWidget(item, timeWidget);
             }
-
-            addMessageToList(messageLine, isOwn);
+            QString messageLine =   content;
+            bool isOwn = (sender == selfAccount);
+            addMessageToList(messageLine, name,isOwn);
         }
     }
 
@@ -118,12 +137,49 @@ void ChatWindow::getHistory()
     socket->write(data);
 }
 
-void ChatWindow::addMessageToList(const QString &text, bool isOwnMessage)
+void ChatWindow::addMessageToList(const QString &text, const QString &name, bool isOwnMessage)
 {
-    QListWidgetItem *item = new QListWidgetItem(ui->MessageListWidget);
+    // 创建一个新的 QWidget 容器，包含名字标签和消息气泡
+    QWidget *container = new QWidget;
+    QVBoxLayout *layout = new QVBoxLayout(container);
+    layout->setSpacing(2);
+    layout->setContentsMargins(10, 0, 10, 0);
+
+    // 名字标签
+    QLabel *nameLabel = new QLabel(name);
+    nameLabel->setStyleSheet("color: gray; font-size: 10px;");
+    if (isOwnMessage) {
+        nameLabel->setAlignment(Qt::AlignRight);
+    } else {
+        nameLabel->setAlignment(Qt::AlignLeft);
+    }
+
+    // 消息气泡
     MessageBubbleWidget *bubble = new MessageBubbleWidget(text, isOwnMessage);
-    item->setSizeHint(bubble->sizeHint());
+
+    // 添加到布局
+    layout->addWidget(nameLabel);
+    layout->addWidget(bubble);
+
+    // 设置 QListWidgetItem
+    QListWidgetItem *item = new QListWidgetItem(ui->MessageListWidget);
+    item->setSizeHint(container->sizeHint());
+
     ui->MessageListWidget->addItem(item);
-    ui->MessageListWidget->setItemWidget(item, bubble);
+    ui->MessageListWidget->setItemWidget(item, container);
     ui->MessageListWidget->scrollToBottom();
+}
+
+QWidget* ChatWindow::createTimeLabel(const QString &time)
+{
+    QLabel *label = new QLabel(time);
+    label->setAlignment(Qt::AlignCenter);
+    label->setStyleSheet("color: gray; font-size: 12px; padding: 5px;");
+
+    QWidget *wrapper = new QWidget;
+    QHBoxLayout *layout = new QHBoxLayout(wrapper);
+    layout->addWidget(label);
+    layout->setAlignment(Qt::AlignCenter);
+    layout->setContentsMargins(0, 0, 0, 0);
+    return wrapper;
 }

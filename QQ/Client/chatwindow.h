@@ -13,7 +13,7 @@
 #include <QTextEdit>
 #include <QThread>
 #include "messagebubblewidget.h"
-
+const int TIME_THRESHOLD_SECONDS = 300;
 namespace Ui {
 class ChatWindow;
 }
@@ -28,7 +28,8 @@ public:
     void run();
     void receiveMessage(const QJsonObject &js);
     void getHistory();
-    void addMessageToList(const QString &text, bool isOwnMessage);
+    void addMessageToList(const QString &text, const QString &name, bool isOwnMessage);
+    QWidget* createTimeLabel(const QString &time);
 private slots:
     void on_SendButton_clicked();
 
@@ -41,6 +42,8 @@ private:
     QTcpSocket* socket;
     QString selfAccount;
     QString friendAccount;
+    QDateTime lastMessageTime;
+    QString friendName;
 };
 
 #endif // CHATWINDOW_H

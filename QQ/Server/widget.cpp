@@ -9,7 +9,7 @@ Widget::Widget(QWidget *parent)
     server = new QTcpServer;
     server->listen(QHostAddress::AnyIPv4,8000);
     db =QSqlDatabase ::addDatabase("QMYSQL");
-    db.setDatabaseName("mydb");
+    db.setDatabaseName("mychat");
     db.setHostName("localhost");
     db.setUserName("root");
     db.setPassword("root");
