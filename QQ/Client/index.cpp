@@ -51,30 +51,27 @@ void Index::frommain(QJsonObject jsonobject){
         ||type=="checkFriend_response"
         ||type=="friend_request_response"){
         emit sendToAF(jsonobject);
-    }else if(type=="View_friend_relationships_response"||type == "get_history_response"){
-        emit sendToFM(jsonobject);
-        if (type=="View_friend_relationships_response"){
-            model->clear();
-            if(jsonobject.contains("allfriend")&&jsonobject["allfriend"].isArray()){
-                QJsonArray allfriend=jsonobject["allfriend"].toArray();
-                qDebug()<<allfriend;
-                for(QJsonArray::const_iterator it=allfriend.constBegin();it!=allfriend.constEnd();++it){
-                    const auto &item =*it;
-                    if (item.isObject()) {
-                        QJsonObject cu_friend = item.toObject();
-                        qDebug()<<cu_friend;
-                        int status=cu_friend["status"].toInt();
-                        if(!status) continue;
+    }else if(type=="View_friend_relationships_response"){
+        model->clear();
+        if(jsonobject.contains("allfriend")&&jsonobject["allfriend"].isArray()){
+            QJsonArray allfriend=jsonobject["allfriend"].toArray();
+            qDebug()<<allfriend;
+            for(QJsonArray::const_iterator it=allfriend.constBegin();it!=allfriend.constEnd();++it){
+                const auto &item =*it;
+                if (item.isObject()) {
+                    QJsonObject cu_friend = item.toObject();
+                    qDebug()<<cu_friend;
+                    int status=cu_friend["status"].toInt();
+                    if(!status) continue;
                         emit createItem(cu_friend);
                     }
                 }
             }
-
-        }
-        else if(type=="get_history_response")
-        {
-            emit sendToCHAT(jsonobject);
-        }
+        emit sendToFM(jsonobject);
+    }else if(type=="get_history_response"||type=="chat_message"){
+        emit sendToCHAT(jsonobject);
+        emit sendToAF(jsonobject);
+        emit sendToFM(jsonobject);
     }
 }
 Index::~Index()
@@ -86,6 +83,7 @@ Index::~Index()
 
 void Index::addFriend(){
     this->hide();
+    addButton();
     addF->show();
 }
 void Index::comeback(){

@@ -24,11 +24,16 @@ void AddFriend::viewClickedSlots(const QModelIndex& index){
     delete info;
     info=new Information(socket,jsonOb,message,this);
     connect(this,&AddFriend::sendToINF,info,&Information::fromAD);
+    connect(info,&Information::INF_close,this,&AddFriend::Infor_close);
     info->show();
+    this->close();
 }
 AddFriend::~AddFriend()
 {
     delete ui;
+}
+void AddFriend::Infor_close(){
+    this->show();
 }
 void AddFriend::fromIN(QJsonObject jsonobject){
     QString type=jsonobject["type"].toString();
@@ -50,7 +55,10 @@ void AddFriend::fromIN(QJsonObject jsonobject){
         }
         ui->resultlistView->setModel(model);
     }
-    else if(type=="checkFriend_response"||type=="friend_request_response"){
+    else if(type=="checkFriend_response"
+               ||type=="friend_request_response"
+               ||type == "get_history_response"
+               ||type=="chat_message"){
         emit sendToINF(jsonobject);
         qDebug()<<"sendToINF";
     }

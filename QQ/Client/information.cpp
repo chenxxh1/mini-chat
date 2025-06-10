@@ -19,7 +19,7 @@ Information::Information(QTcpSocket *s, QJsonObject v,QString message, QWidget *
     } else {
         qDebug() << "未找到匹配的内容";
     }
-    QString v_account=viewer["account"].toString();//查看者的账号
+    v_account=viewer["account"].toString();//查看者的账号
     //向服务端发送检查好友信息
     QJsonObject jsonObject;
     jsonObject["type"]="checkFriend";
@@ -31,6 +31,7 @@ Information::Information(QTcpSocket *s, QJsonObject v,QString message, QWidget *
     socket->write(byte);
     connect(ui->closetoolButton,&QToolButton::clicked,this,[this](){
         this->close();
+        emit INF_close();
     });
     connect(ui->sendpushButton,&QPushButton::clicked,this,&Information::sendPushClick);
 }
@@ -48,6 +49,8 @@ void Information::fromAD(QJsonObject jsonobject){
         }
     }else if(type=="friend_request_response"){
         QMessageBox::information(this,"提示","已发送申请");
+    }else if(type == "get_history_response"||type=="chat_message"){
+        emit sendToCHAT(jsonobject);
     }
 }
 void Information::sendPushClick(){
@@ -64,7 +67,13 @@ void Information::sendPushClick(){
 
         socket->write(byte);
     }else{
-
+        QString friendName=nickname;
+        if(account==v_account){
+            friendName="self";
+        }
+        ChatWindow *chat = new ChatWindow(socket, v_account, account,friendName, nullptr);
+        connect(this,&Information::sendToCHAT,chat,&ChatWindow::onReadyRead);
+        chat->show();
     }
 
 }

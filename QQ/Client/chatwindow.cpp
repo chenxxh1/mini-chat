@@ -88,9 +88,14 @@ void ChatWindow::onReadyRead(QJsonObject jsonobject)
             QString time = msg["time"].toString();
             QString name = msg["name"].toString();
             QString displayMsg;
-
-            QString messageLine = "[" + time + "] " + name + ": " + content;
+            QString messageLine;
             bool isOwn = (sender == selfAccount);
+            if(isOwn){
+                messageLine = "[" + time + "] 我" + ": " + content;
+            }else{
+                messageLine = "[" + time + "] " + name + ": " + content;
+            }
+
             addMessageToList(messageLine, isOwn);
         }
     }

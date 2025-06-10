@@ -26,6 +26,7 @@ public slots:
     void on_searchlindEdit();
     void fromIN(QJsonObject jsonobject);//处理接受的搜索结果信息
     void viewClickedSlots(const QModelIndex& index);
+    void Infor_close();
 private:
     Ui::AddFriend *ui;
     QTcpSocket *socket;

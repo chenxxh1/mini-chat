@@ -27,10 +27,13 @@ private:
     QString account;
     QString nickname;
     QJsonObject viewer;
+    QString v_account;
 public slots:
     void fromAD(QJsonObject jsonobject);
     void sendPushClick();
-private slots:
+signals:
+    void sendToCHAT(QJsonObject jsonobject);
+    void INF_close();
 };
 
 #endif // INFORMATION_H

@@ -126,7 +126,7 @@ void FriendManagement::fromIN(QJsonObject jsonobject){
         }
 
     }
-    else if(type=="get_history_response")
+    else if(type=="get_history_response"||type=="chat_message")
     {
         emit sendToCHAT(jsonobject);
     }
