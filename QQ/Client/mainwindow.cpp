@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 #include "dragevent.h"
 #include "registerwindow.h"
-const QString publicIp = "47.98.99.231"; // 替换为你的公网 IP
+const QString publicIp = "47.111.134.228"; // 替换为你的公网 IP
 const QString localIp = "127.0.0.1";   // 本地 IP
 const int port = 8000;                 // 端口号
 MainWindow::MainWindow(QWidget *parent)
@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 void MainWindow::connectToServer() {
     // 尝试连接公网 IP
-    socket->connectToHost(publicIp, port);
+    socket->connectToHost("127.0.0.1", port);
 
     // 连接成功时的处理
     connect(socket, &QTcpSocket::connected, this, [this](){
@@ -35,6 +35,7 @@ void MainWindow::connectToServer() {
         if (socketError == QAbstractSocket::ConnectionRefusedError) {
             // 如果连接公网 IP 失败，尝试连接本地 IP
             socket->connectToHost(localIp, port);
+            QMessageBox::information(this, "提示", "连接本地服务器成功");
         } else {
             // 其他错误，提示用户
             QMessageBox::warning(this, "警告", "连接服务器失败");

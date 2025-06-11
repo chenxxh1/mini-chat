@@ -33,7 +33,7 @@ ChatWindow::ChatWindow(QTcpSocket *socket, const QString &selfAccount, const QSt
         background: transparent;
     }
     )");
-
+    ui->EditArea->installEventFilter(this);
     this->installEventFilter(new DragEvent());
     this->socket = socket;
     this->selfAccount = selfAccount;
@@ -47,6 +47,19 @@ ChatWindow::ChatWindow(QTcpSocket *socket, const QString &selfAccount, const QSt
     getHistory();           // 再请求服务器更新
 
     connect(ui->close,&QToolButton::clicked,this,&ChatWindow::on_close_triggered);
+    connect(ui->SendButton, &QPushButton::clicked, this, &ChatWindow::on_SendButton_clicked);
+}
+bool ChatWindow::eventFilter(QObject *obj, QEvent *event) {
+    if (obj == ui->EditArea && event->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+        if ((keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) &&
+            keyEvent->modifiers() == Qt::NoModifier) {
+            emit on_SendButton_clicked(); // 触发发送
+            return true; // 阻止默认换行行为
+        }
+    }
+    return QWidget::eventFilter(obj, event);
+    ui->EditArea->setFocus();
 }
 
 ChatWindow::~ChatWindow()
@@ -62,6 +75,9 @@ void ChatWindow::run()
 void ChatWindow::on_SendButton_clicked()
 {
     QString text = ui->EditArea->toPlainText();
+    while (!text.isEmpty() && text.endsWith('\n')) {
+        text = text.chopped(1);
+    }
     if (text.isEmpty()) return;
 
     QJsonObject object;
@@ -242,13 +258,13 @@ void ChatWindow::saveMessageToLocal(const QJsonObject &msg) {
         if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
             QJsonDocument doc(historyArray);
             qint64 bytesWritten = file.write(doc.toJson());
-            qDebug() << "✅ 写入文件成功，共写入" << bytesWritten << "字节";
+            qDebug() << " 写入文件成功，共写入" << bytesWritten << "字节";
             file.close();
         } else {
-            qDebug() << "❌ 无法打开文件进行写入：" << file.errorString();
+            qDebug() << " 无法打开文件进行写入：" << file.errorString();
         }
     } else {
-        qDebug() << "⚠️ 消息已存在，未写入文件：" << messageId;
+        qDebug() << " 消息已存在，未写入文件：" << messageId;
     }
 
 }
@@ -314,6 +330,6 @@ void ChatWindow::processNewMessage(const QJsonObject &msg) {
         // 更新最后一条消息的时间
         lastMessageTime = timestamp;
     } else {
-        qDebug() << "⚠️ 消息已存在，跳过：" << messageId;
+        qDebug() << " 消息已存在，跳过：" << messageId;
     }
 }

@@ -12,6 +12,7 @@
 #include <QVBoxLayout>
 #include <QTextEdit>
 #include <QThread>
+#include <QKeyEvent>
 #include "messagebubblewidget.h"
 const int TIME_THRESHOLD_SECONDS = 300;
 namespace Ui {
@@ -38,6 +39,8 @@ private slots:
 
 
     void on_close_triggered();
+signals:
+    void enterPressed();
 public slots:
     void onReadyRead(QJsonObject jsonobject);
 private:
@@ -48,6 +51,7 @@ private:
     QDateTime lastMessageTime;
     QString friendName;
     QSet<QString> messageCache;  // 缓存已处理的消息ID
+    bool eventFilter(QObject *obj, QEvent *event);
 
     void processNewMessage(const QJsonObject &msg);  // 新增处理单条消息的函数
 };

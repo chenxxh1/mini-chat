@@ -17,7 +17,7 @@ public:
     void setAccount(QString account);
     QString getAccount();
 signals:
-    void sendToWidget(QByteArray byte,Mythread *t);
+    void sendToserver(QByteArray byte,Mythread *t);
     void clientDisconnected(QByteArray byte,Mythread *t);
 public slots:
     void clientInfo();
