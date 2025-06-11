@@ -25,7 +25,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
+    void connectToServer();
 
 private slots:
     void on_aggreButton_clicked();
