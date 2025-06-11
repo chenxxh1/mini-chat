@@ -1,6 +1,7 @@
 #include "widget.h"
 #include "ui_widget.h"
 #include <QRandomGenerator>
+QString generateMessageId();
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
@@ -355,15 +356,19 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
                 qDebug()<<query.lastError();
             }
         }
-        else if(type == "chat_message"){
+        else if (type == "chat_message") {
             QString from = jsonObject["from"].toString();
             QString to = jsonObject["to"].toString();
             qDebug() << "to_user:::" << from << to;
             QString content = jsonObject["content"].toString();
             QString time = jsonObject["time"].toString(); // 可以加时间字段
 
+            // 生成唯一消息ID
+            QString messageId = QUuid::createUuid().toString(QUuid::StringFormat::WithoutBraces);
+
             QJsonObject chatData;
             chatData["type"] = "chat_message";
+            chatData["id"] = messageId;   // 添加唯一 ID
             chatData["from"] = from;
             chatData["to"] = to;
             chatData["content"] = content;
@@ -371,12 +376,16 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
 
             QJsonDocument doc(chatData);
             QByteArray data = doc.toJson();
+
             QSqlQuery saveChat;
-            saveChat.prepare("INSERT INTO messages (sender, receiver, content, time) VALUES (:from, :to, :content, :time)");
+            saveChat.prepare("INSERT INTO messages (sender, receiver, content, time, message_id) "
+                             "VALUES (:from, :to, :content, :time, :messageId)");
             saveChat.bindValue(":from", from);
             saveChat.bindValue(":to", to);
             saveChat.bindValue(":content", content);
             saveChat.bindValue(":time", time);
+            saveChat.bindValue(":messageId", messageId);  // 插入唯一ID
+
             if (!saveChat.exec()) {
                 qDebug() << "Failed to save message:" << saveChat.lastError().text();
             }
@@ -388,18 +397,17 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
                 response["status"] = "offline"; // 对方不在线
             }
         }
-        else if(type == "get_history") {
+        else if (type == "get_history") {
             QString a1 = jsonObject["from"].toString();
             QString a2 = jsonObject["to"].toString();
 
             QSqlQuery query;
-            query.prepare("SELECT sender, receiver, content, time FROM messages WHERE "
+            query.prepare("SELECT sender, receiver, content, time, message_id FROM messages WHERE "
                           "(sender = :a1 AND receiver = :a2) OR (sender = :a2 AND receiver = :a1) "
                           "ORDER BY time ASC");
             query.bindValue(":a1", a1);
             query.bindValue(":a2", a2);
 
-            //查看账号对应的昵称
             QMap<QString, QString> nicknameMap;
             QSqlQuery nicknameQuery;
             nicknameQuery.prepare("SELECT account, nickname FROM users WHERE account = :a1 OR account = :a2");
@@ -418,7 +426,8 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
                 while (query.next()) {
                     QString sender = query.value("sender").toString();
                     QJsonObject msg;
-                    msg["name"] = nicknameMap.value(sender, sender);//发送者的名称
+                    msg["id"] = query.value("message_id").toString();      // 添加唯一 ID
+                    msg["name"] = nicknameMap.value(sender, sender);       // 发送者的名称
                     msg["from"] = sender;
                     msg["to"] = query.value("receiver").toString();
                     msg["content"] = query.value("content").toString();
@@ -429,8 +438,6 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
 
             response["type"] = "get_history_response";
             response["messages"] = msgArray;
-
-
         }
         else if(type == "create_group") {
             QString groupName = jsonObject["group_name"].toString();
@@ -503,4 +510,9 @@ void Widget::on_accountpushButton_clicked()
         ui->accountList->addItem(item);
     }
 }
+#include <QUuid>
+#include <QJsonObject>
 
+QString generateMessageId() {
+    return QUuid::createUuid().toString(QUuid::StringFormat::WithoutBraces);
+}

@@ -30,6 +30,9 @@ public:
     void getHistory();
     void addMessageToList(const QString &text, const QString &name, bool isOwnMessage);
     QWidget* createTimeLabel(const QString &time);
+    QString getHistoryFilePath() const;
+    void saveMessageToLocal(const QJsonObject &msg);
+    void loadHistoryFromLocal();
 private slots:
     void on_SendButton_clicked();
 
@@ -44,6 +47,9 @@ private:
     QString friendAccount;
     QDateTime lastMessageTime;
     QString friendName;
+    QSet<QString> messageCache;  // 缓存已处理的消息ID
+
+    void processNewMessage(const QJsonObject &msg);  // 新增处理单条消息的函数
 };
 
 #endif // CHATWINDOW_H
