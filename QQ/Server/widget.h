@@ -29,6 +29,7 @@ public:
     ~Widget();
     bool isAccountExists(QString account);//查询账号是否存在
     void findallfriend(const QString &account,QJsonObject &response);
+    void findallgroup(const QString &account,QJsonObject &response);
     QString crypassword(QString password);
     bool insertFrinend(QString ,QString,int);
 public slots:

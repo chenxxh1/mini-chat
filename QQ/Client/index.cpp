@@ -2,6 +2,7 @@
 #include "ui_index.h"
 #include "dragevent.h"
 #include "frienditemwidget.h"
+#include "groupitemwidget.h"
 Index::Index(QTcpSocket *s,QJsonObject js,QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Index)
@@ -12,10 +13,14 @@ Index::Index(QTcpSocket *s,QJsonObject js,QWidget *parent)
 
     addF=new AddFriend(socket,js,this);
     connect(this,&Index::sendToAF,addF,&AddFriend::fromIN);
+    cg = new CreateGroup(socket,js,this);
+    connect(this,&Index::sendToCG,cg,&CreateGroup::fromIN);
     account =js["account"].toString();
     nickname=js["nickname"].toString();
     fm=new FriendManagement(socket,jsonOb,this);
     connect(this,&Index::sendToFM,fm,&FriendManagement::fromIN);
+    updateG(account);
+    //updateF(account);
     connect(ui->closeButton,&QToolButton::clicked,this,&Index::closeButtonC);
     setWindowFlag(Qt::FramelessWindowHint);
     this->installEventFilter(new DragEvent(this));
@@ -39,6 +44,7 @@ Index::Index(QTcpSocket *s,QJsonObject js,QWidget *parent)
     connect(fm,&FriendManagement::FM_close,this,&Index::comeback);
     model=new QStandardItemModel(this);
     connect(this,&Index::createItem,this,&Index::addFriendItem);
+    connect(this,&Index::createGroupItem,this,&Index::addGroupItem);
     ui->messagelistView->setModel(model);
     // 设置 QListView 的大小调整策略
     ui->messagelistView->setResizeMode(QListView::Adjust);
@@ -67,12 +73,30 @@ void Index::frommain(QJsonObject jsonobject){
                     }
                 }
             }
-        emit sendToFM(jsonobject);
+        emit sendToFM(jsonobject);           
+    }else if (type == "find_all_groups_response") {
+
+        if (jsonobject.contains("groups") && jsonobject["groups"].isArray()) {
+            QJsonArray groupArray = jsonobject["groups"].toArray();
+            qDebug() << "Group List:" << groupArray;
+
+            for (const QJsonValue &value : groupArray) {
+                if (value.isObject()) {
+                    QJsonObject group = value.toObject();
+                    qDebug() << "Group Object:" << group;
+
+                    emit createGroupItem(group);  // 发射信号，由 UI 创建每个群聊项
+                }
+            }
+        }
     }else if(type=="get_history_response"||type=="chat_message"){
         emit sendToCHAT(jsonobject);
         emit sendToAF(jsonobject);
         emit sendToFM(jsonobject);
+    }else if(type=="create_group_response"){
+        emit sendToCG(jsonobject);
     }
+
 }
 Index::~Index()
 {
@@ -93,6 +117,9 @@ void Index::comeback(){
 
 void Index::createGroup(){
     qDebug()<<__func__;
+    this->hide();
+    addButton();
+    cg->show();
 }
 
 void Index::closeButtonC(){
@@ -180,6 +207,18 @@ void Index::onSendMessageButtonClicked(const QJsonObject &js)
     connect(this,&Index::sendToCHAT,chat,&ChatWindow::onReadyRead);
     chat->show();
 }
+void Index::onEnterGroupButtonClicked(const QJsonObject &groupInfo)
+{
+    qDebug() << __func__ << groupInfo;
+
+    QString groupId = groupInfo["group_id"].toString();
+    QString groupName = groupInfo["group_name"].toString();
+
+    ChatWindow *groupChat = new ChatWindow(socket, account, groupId, groupName, nullptr);
+    connect(this, &Index::sendToCHAT, groupChat, &ChatWindow::onReadyRead);
+    groupChat->show();
+}
+
 void Index::addFriendItem(const QJsonObject &js)
 {
     qDebug()<<__func__<<js;
@@ -206,5 +245,55 @@ void Index::addFriendItem(const QJsonObject &js)
     model->insertRow(row, item);
     qDebug()<<model->index(row,0);
     ui->messagelistView->setIndexWidget(model->index(row, 0), widget);
+}
+
+void Index::addGroupItem(const QJsonObject &js)
+{
+    qDebug() << __func__ << js;
+
+    QJsonObject newjs = js;
+    newjs["account"] = account;
+    newjs["type"] = "GROUP";
+
+    // 创建群聊项组件
+    GroupItemWidget* widget = new GroupItemWidget(newjs, this);
+    widget->show();
+
+    // 可选：绑定信号槽，进入群聊窗口等
+    // 信号连接
+    connect(widget, &GroupItemWidget::enterGroupButtonClicked, this, &Index::onEnterGroupButtonClicked);
+
+
+    // 创建用于填充的 item
+    QStandardItem* item = new QStandardItem();
+    item->setEditable(false);
+    QSize sizeHint = item->sizeHint();
+    sizeHint.setHeight(40); // 设置高度
+    item->setSizeHint(sizeHint);
+
+    // 添加到列表中
+    int row = model->rowCount();
+    model->insertRow(row, item);
+    ui->messagelistView->setIndexWidget(model->index(row, 0), widget);
+}
+
+void Index::updateG(QString account){
+    QJsonObject jsonobect;
+    jsonobect["type"]="View_Group_relationships";
+    jsonobect["account"] = account;
+    QByteArray byte=QJsonDocument(jsonobect).toJson();
+    socket->write(byte);
+    socket->write("\n"); // 建议添加分隔符，便于服务端处理
+    qDebug() << byte;
+}
+
+void Index::updateF(QString account) {
+    QJsonObject jsonobect;
+    jsonobect["type"] = "View_friend_relationships";
+    jsonobect["account"] = account;
+    QByteArray byte = QJsonDocument(jsonobect).toJson();
+    socket->write(byte);
+    socket->write("\n");
+    qDebug() << byte;
 }
 

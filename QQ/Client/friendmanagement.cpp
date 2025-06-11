@@ -13,7 +13,7 @@ FriendManagement::FriendManagement(QTcpSocket *s,QJsonObject js,QWidget *parent)
     model=new QStandardItemModel(this);
     account =js["account"].toString();
     nickname=js["nickname"].toString();
-    update();
+    //update();
     connect(ui->closetoolButton,&QToolButton::clicked,this,[this](){
         this->close();
         emit FM_close();
@@ -31,7 +31,6 @@ void FriendManagement::update(){
     QByteArray byte=QJsonDocument(jsonobect).toJson();
     socket->write(byte);
 }
-
 void FriendManagement::onAgreeButtonClicked(const QJsonObject &js)
 {
     qDebug()<<__func__<<js;

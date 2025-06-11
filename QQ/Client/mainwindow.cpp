@@ -127,7 +127,10 @@ void MainWindow::serverSocket(){
                    ||type=="friend_request_response"
                    ||type=="View_friend_relationships_response"
                    ||type == "get_history_response"
-                   ||type=="chat_message"){
+                   ||type=="chat_message"
+                   ||type=="create_group_response"
+                   ||type=="group_chat_message"
+                   ||type=="find_all_groups_response"){
             emit sendToIN(jsonObject);
         }
     }

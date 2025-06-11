@@ -10,6 +10,7 @@
 #include <QStandardItemModel>
 #include "friendmanagement.h"
 #include "chatwindow.h"
+#include "creategroup.h"
 namespace Ui {
 class Index;
 }
@@ -38,6 +39,7 @@ public slots:
     void onAgreeButtonClicked(const QJsonObject &js);
     void onRefuseButtonClicked(const QJsonObject &js);
     void onSendMessageButtonClicked(const QJsonObject &js);
+    void onEnterGroupButtonClicked(const QJsonObject &groupInfo);
 
 private:
     Ui::Index *ui;
@@ -55,13 +57,19 @@ private:
     QMap<QString, ChatWindow*> chatWindowMap;
     QString account;
     QString nickname;
+    CreateGroup *cg;
     void addFriendItem(const QJsonObject &js);
+    void addGroupItem(const QJsonObject &js);
+    void updateG(QString account);
+    void updateF(QString account);
 signals:
     void sendToAF(QJsonObject jsonobject);//发送给AF
     void sendToFM(QJsonObject jsonobject);
     void I_close();
     void createItem(QJsonObject obj);
     void sendToCHAT(QJsonObject jsonobject);
+    void sendToCG(QJsonObject jsonobject);
+    void createGroupItem(QJsonObject obj);
 };
 
 #endif // INDEX_H

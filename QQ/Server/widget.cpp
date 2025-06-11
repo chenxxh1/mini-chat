@@ -41,6 +41,7 @@ bool Widget::isAccountExists(QString account){
 
 void Widget::findallfriend(const QString &account,QJsonObject &response)
 {
+
     QSqlQuery query;
     QJsonArray allfriend;
     //user1_account为发送好友申请的账号
@@ -71,8 +72,41 @@ void Widget::findallfriend(const QString &account,QJsonObject &response)
     }
     response["type"]="View_friend_relationships_response";
     response["allfriend"]=allfriend;
+    qDebug() << __func__ << response;
+}
+void Widget::findallgroup(const QString &account,QJsonObject &response)
+{
+QSqlQuery query;
+    qDebug()<<account;
+
+    query.prepare(R"(
+    SELECT g.group_id, g.group_name, g.owner_account
+    FROM `groups` g
+    JOIN group_members gm ON g.group_id = gm.group_id
+    WHERE gm.account = :account
+)");
+
+
+
+query.bindValue(":account", account);
+
+QJsonArray groupArray;
+if (query.exec()) {
+    while (query.next()) {
+        QJsonObject group;
+        group["group_id"] = query.value("group_id").toString();
+        group["group_name"] = query.value("group_name").toString();
+        group["owner_account"] = query.value("owner_account").toString();
+        groupArray.append(group);
+    }
+} else {
+    qDebug() << "Failed to fetch groups:" << query.lastError().text();
 }
 
+response["type"] = "find_all_groups_response";
+response["groups"] = groupArray;
+qDebug() << __func__ << response;
+}
 QString Widget::crypassword(QString password)
 {
     QCryptographicHash Md5(QCryptographicHash::Md5);
@@ -123,7 +157,9 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
     QJsonObject response;
     QByteArray responseData;
     //接受到的数据
+    qDebug() << byte;
     QJsonDocument document = QJsonDocument::fromJson(byte);
+    qDebug() << document;
     if(!document.isNull()&&document.isObject()){
         QJsonObject jsonObject =document.object();
         QString type =jsonObject.value("type").toString();
@@ -286,6 +322,11 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
         }else if(type=="View_friend_relationships"){
             QString account =jsonObject["account"].toString();
             findallfriend(account,response);
+
+        }else if(type=="View_Group_relationships"){
+            QString account =jsonObject["account"].toString();
+            findallgroup(account,response);
+
         }else if(type=="Agree_the_friend"){
             QString account=jsonObject["account"].toString();
             QString friend_account=jsonObject["friend_account"].toString();
@@ -391,6 +432,43 @@ void Widget::newMessageReciver(QByteArray byte,Mythread *currentThread){
 
 
         }
+        else if(type == "create_group") {
+            QString groupName = jsonObject["group_name"].toString();
+            QString ownerAccount = jsonObject["owner_account"].toString();
+
+            // 创建群组
+            QSqlQuery query;
+            query.prepare("INSERT INTO `groups` (group_name, owner_account) VALUES (:group_name, :owner_account)");
+            query.bindValue(":group_name", groupName);
+            query.bindValue(":owner_account", ownerAccount);
+
+            response["type"] = "create_group_response";
+
+            if (query.exec()) {
+                qint64 groupId = query.lastInsertId().toLongLong();
+
+                // 插入群主到群成员表，role设为'owner'
+                QSqlQuery addMember;
+                addMember.prepare("INSERT INTO group_members (group_id, account, role) VALUES (:group_id, :account, 'owner')");
+                addMember.bindValue(":group_id", groupId);
+                addMember.bindValue(":account", ownerAccount);
+                addMember.exec();
+
+                response["status"] = "success";
+                response["group_id"] = QString::number(groupId);
+                response["message"] = "Group created successfully";
+                if (!addMember.exec()) {
+                    qDebug() << "Failed to add group member:" << addMember.lastError().text();
+                } else {
+                    qDebug() << "Added group member successfully.";
+                }
+            } else {
+                response["status"] = "failure";
+                response["message"] = query.lastError().text();
+            }
+
+        }
+
 
     }
     responseData = QJsonDocument(response).toJson();
