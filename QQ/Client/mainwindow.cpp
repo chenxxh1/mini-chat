@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->installEventFilter(new DragEvent(this));
     connect(ui->CloseButton,&QToolButton::clicked,this,&MainWindow::on_CloseButton_triggered);
     socket =new QTcpSocket;
-    socket->connectToHost("47.98.99.231",8000);
+    socket->connectToHost("127.0.0.1",8000);
     connect(socket,&QTcpSocket::connected,this,[this](){
         QMessageBox::information(this,"提示","连接服务器成功");
     });
@@ -88,7 +88,7 @@ void MainWindow::serverSocket(){
     QJsonDocument document =QJsonDocument::fromJson(byte);
     if(!document.isNull()&&document.isObject()){
         QJsonObject jsonObject =document.object();
-        qDebug()<<__func__<<jsonObject;
+        qDebug()<<"接受的信息："<<jsonObject;
         QString type = jsonObject.value("type").toString();
         if(type=="register_response"){
             QString status =jsonObject.value("status").toString();
@@ -130,7 +130,7 @@ void MainWindow::serverSocket(){
                    ||type=="chat_message"
                    ||type=="create_group_response"
                    ||type=="group_chat_message"
-                   ||type=="find_all_groups_response"){
+                   ||type=="update_resopnse"){
             emit sendToIN(jsonObject);
         }
     }

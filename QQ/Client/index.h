@@ -47,7 +47,7 @@ private:
     QTcpSocket *socket;
     bool addToolButtonisclicked;
     bool setButtonclicked;
-    QPushButton* createGroupButton ;
+    QPushButton* createGroupButton;
     QPushButton* addFriendOrGroupButton;
     AddFriend *addF;//添加好友界面
     QJsonObject jsonOb;

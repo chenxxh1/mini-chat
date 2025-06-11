@@ -20,12 +20,15 @@ class Server : public QObject
     Q_OBJECT
 public:
     explicit Server(QObject *parent = nullptr);
-    bool isAccountExists(QString account);
-    void findallfriend(const QString &account,QJsonObject &response);
-    QString crypassword(QString password);
-    bool insertFriend(QString ,QString,int);
+    bool isAccountExists(const QString &account);
+    QJsonArray findallfriend(const QString &account);
+    QJsonArray findallgroup(const QString &account);
+    void find(const QString &account,QJsonObject& response);
+    void sendToClient(QTcpSocket* socket,const QJsonObject& response);
+    QString crypassword(const QString &password);
+    bool insertFriend(const QString& ,const QString&,const int&);
     ~Server();
-    void setPrintInterval(int seconds); // 添加设置打印间隔的方法
+    void setPrintInterval(const int& seconds); // 添加设置打印间隔的方法
     void initDatabaseTables();
     void checkTableExists(const QString &tableName);
 public slots:
@@ -37,7 +40,7 @@ public slots:
 private:
     QTcpServer *server;
     QSqlDatabase db;
-    QMap<QString,Mythread*>threadInfo;
+    QMap<QString,Mythread*>threadInfo;//存储所有在线的账号对应的线程
     QMap<QString, QTcpSocket*> userSocketMap;
     QTimer *timer; // 添加定时器
 };

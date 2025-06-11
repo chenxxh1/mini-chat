@@ -57,7 +57,7 @@ void Index::frommain(QJsonObject jsonobject){
         ||type=="checkFriend_response"
         ||type=="friend_request_response"){
         emit sendToAF(jsonobject);
-    }else if(type=="View_friend_relationships_response"){
+    }else if(type=="update_resopnse"){
         model->clear();
         if(jsonobject.contains("allfriend")&&jsonobject["allfriend"].isArray()){
             QJsonArray allfriend=jsonobject["allfriend"].toArray();
@@ -69,26 +69,26 @@ void Index::frommain(QJsonObject jsonobject){
                     qDebug()<<cu_friend;
                     int status=cu_friend["status"].toInt();
                     if(!status) continue;
-                        emit createItem(cu_friend);
-                    }
-                }
-            }
-        emit sendToFM(jsonobject);           
-    }else if (type == "find_all_groups_response") {
-
-        if (jsonobject.contains("groups") && jsonobject["groups"].isArray()) {
-            QJsonArray groupArray = jsonobject["groups"].toArray();
-            qDebug() << "Group List:" << groupArray;
-
-            for (const QJsonValue &value : groupArray) {
-                if (value.isObject()) {
-                    QJsonObject group = value.toObject();
-                    qDebug() << "Group Object:" << group;
-
-                    emit createGroupItem(group);  // 发射信号，由 UI 创建每个群聊项
+                    else emit createItem(cu_friend);
                 }
             }
         }
+        if (jsonobject.contains("allgroup") && jsonobject["allgroup"].isArray()) {
+            QJsonArray allgroup = jsonobject["allgroup"].toArray();
+            qDebug() << "Group List:" << allgroup;
+
+             for (QJsonArray::const_iterator it=allgroup.constBegin();it!=allgroup.constEnd();++it) {
+                const auto &item =*it;
+                if (item.isObject()) {
+                        QJsonObject group = item.toObject();
+                        qDebug() << "Group Object:" << group;
+
+                        emit createGroupItem(group);  // 发射信号，由 UI 创建每个群聊项
+                }
+
+             }
+        }
+        emit sendToFM(jsonobject);
     }else if(type=="get_history_response"||type=="chat_message"){
         emit sendToCHAT(jsonobject);
         emit sendToAF(jsonobject);

@@ -26,7 +26,7 @@ FriendManagement::FriendManagement(QTcpSocket *s,QJsonObject js,QWidget *parent)
 }
 void FriendManagement::update(){
     QJsonObject jsonobect;
-    jsonobect["type"]="View_friend_relationships";
+    jsonobect["type"]="update";
     jsonobect["account"]=account;
     QByteArray byte=QJsonDocument(jsonobect).toJson();
     qDebug()<<__func__<<byte;
@@ -111,7 +111,7 @@ void FriendManagement::addFriendItem(const QJsonObject &js)
 void FriendManagement::fromIN(QJsonObject jsonobject){
     qDebug()<<__func__<<jsonobject;
     QString type=jsonobject["type"].toString();
-    if (type=="View_friend_relationships_response"){
+    if (type=="update_resopnse"){
         model->clear();
         if(jsonobject.contains("allfriend")&&jsonobject["allfriend"].isArray()){
             QJsonArray allfriend=jsonobject["allfriend"].toArray();
@@ -120,11 +120,25 @@ void FriendManagement::fromIN(QJsonObject jsonobject){
                 const auto &item =*it;
                 if (item.isObject()) {
                     QJsonObject cu_friend = item.toObject();
+                    qDebug()<<cu_friend;
                     emit createItem(cu_friend);
                 }
             }
         }
+        if (jsonobject.contains("allgroup") && jsonobject["allgroup"].isArray()) {
+            QJsonArray allgroup = jsonobject["allgroup"].toArray();
+            qDebug() << "Group List:" << allgroup;
 
+            for (QJsonArray::const_iterator it=allgroup.constBegin();it!=allgroup.constEnd();++it) {
+                const auto &item =*it;
+                if (item.isObject()) {
+                    QJsonObject group = item.toObject();
+                    qDebug() << "Group Object:" << group;
+                    emit createGroupItem(group);  // 发射信号，由 UI 创建每个群聊项
+                }
+
+            }
+        }
     }
     else if(type=="get_history_response"||type=="chat_message")
     {

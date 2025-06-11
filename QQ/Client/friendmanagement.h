@@ -23,6 +23,7 @@ class FriendManagement : public QMainWindow
 public:
     explicit FriendManagement(QTcpSocket *s,QJsonObject js,QWidget *parent = nullptr);
     ~FriendManagement();
+    void update();
 private:
     Ui::FriendManagement *ui;
     QString account;
@@ -35,7 +36,6 @@ private:
 
 public slots:
     void fromIN(QJsonObject jsonobject);
-    void update();
     void onAgreeButtonClicked(const QJsonObject &js);
     void onRefuseButtonClicked(const QJsonObject &js);
     void onSendMessageButtonClicked(const QJsonObject &js);
@@ -44,6 +44,7 @@ signals:
     void createItem(QJsonObject obj);
     void FM_close();
     void sendToCHAT(QJsonObject jsonobject);
+    void createGroupItem(QJsonObject obj);
 };
 
 #endif // FRIENDMANAGEMENT_H

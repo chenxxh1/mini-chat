@@ -7,7 +7,7 @@ Server::Server (QObject *parent)
     server->listen(QHostAddress::AnyIPv4,8000);
     qDebug() << "Server started on port 8000";
 
-    initDatabaseTables();
+
     db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName("mydb.sqlite");
     if (db.open()) {
@@ -22,6 +22,7 @@ Server::Server (QObject *parent)
     connect(timer, &QTimer::timeout, this, &Server::printOnlineAccounts);
     timer->start(30000);
     setPrintInterval(30);
+    initDatabaseTables();
 
 
 }
@@ -45,7 +46,7 @@ void Server::initDatabaseTables() {
                "sender TEXT, "
                "receiver TEXT, "
                "content TEXT, "
-               "time TEXT, "
+               "time DATETIME, "
                "message_id VARCHAR(36) UNIQUE)");
 
     checkTableExists("users");
@@ -66,6 +67,7 @@ void Server::checkTableExists(const QString &tableName) {
         qDebug() << "Table '" << tableName << "' does not exist.";
     }
 }
+//设置时间间隔
 void Server::setPrintInterval(const int &seconds)
 {
     if (seconds > 0) {
@@ -85,6 +87,7 @@ Server ::~Server ()
         delete i.value();
     }
 }
+//判断账户是否存在
 bool Server ::isAccountExists(const QString& account){
     QSqlQuery ifaccountexits;
     ifaccountexits.prepare("SELECT 1 FROM users WHERE account = :account"); // 查询常量值1
@@ -96,12 +99,13 @@ bool Server ::isAccountExists(const QString& account){
         return false; // 查询失败，返回 false
     }
 }
-
-void Server::findallfriend(const QString &account, QJsonObject &response)
+//查询好友
+QJsonArray Server::findallfriend(const QString &account)
 {
+    qDebug()<<"账号："<<account;
+    qDebug()<<"好友列表:";
     QSqlQuery query;
     QJsonArray allfriend;
-
     query.prepare("SELECT user2_account, status FROM friendships WHERE user1_account = :account AND status = 1 "
                   "UNION SELECT user1_account, status FROM friendships WHERE user2_account = :account;");
     query.bindValue(":account", account);
@@ -133,12 +137,28 @@ void Server::findallfriend(const QString &account, QJsonObject &response)
         qDebug() << allfriend;
     }
 
-    response["type"] = "update_resopnse";
-    response["allfriend"] = allfriend;
+    return allfriend;
 }
 //查询所有群关系
-void Server::findallgroup(const QString &account,QJsonObject &response){
-    qDebug()<<account<<response;
+QJsonArray Server::findallgroup(const QString &account){
+    qDebug()<<"账号："<<account;
+    qDebug()<<"群列表:";
+    QJsonArray allgroup;
+    return allgroup;
+}
+
+void Server::find(const QString &account,QJsonObject &response)
+{
+    response["type"] = "update_resopnse";
+    response["allfriend"] = findallfriend(account);
+    response["allgroup"]=findallgroup(account);
+
+}
+
+void Server::sendToClient(QTcpSocket *socket, const QJsonObject &response)
+{
+    QByteArray byte =QJsonDocument(response).toJson();
+    socket->write(byte);
 }
 
 QString Server::crypassword(const QString &password)
@@ -192,7 +212,6 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
     QTcpSocket *socket =currentThread->getSocket();
     //回显数据
     QJsonObject response;
-    QByteArray responseData;
 
     QJsonDocument receiverdocument = QJsonDocument::fromJson(byte);
     //接受到的数据
@@ -355,33 +374,54 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
             }
         }else if(type=="friend_request"){
             response["type"]="friend_request_response";
-            QString v_account=receiverjsonObject["v_account"].toString();
-            QString account=receiverjsonObject["account"].toString();
+            QString v_account=receiverjsonObject["v_account"].toString();//申请者
+            QString account=receiverjsonObject["account"].toString();//被申请者
             if(insertFriend(v_account,account,0)){
                 response["result"]="insert_successed";
             }else{
                 response["result"]="insert_not_successed";
             }
-        }else if(type=="View_friend_relationships"){
+            //向被申请者发送信息
+            auto it = threadInfo.find(account);
+            if (it != threadInfo.end()) {
+                qDebug() << account<<"在线";
+                Mythread* f_thread = it.value();
+                QTcpSocket* f_socket=f_thread->getSocket();
+                QJsonObject f_response;
+                find(account,f_response);
+                sendToClient(f_socket,f_response);
+            } else {
+                qDebug() << account<<"未在线";
+            }
+        }else if(type=="update"){
             QString account =receiverjsonObject["account"].toString();
-            findallfriend(account,response);
+            find(account,response);
         }else if(type=="Agree_the_friend"){
-            QString account = receiverjsonObject["account"].toString();
-            QString friend_account = receiverjsonObject["friend_account"].toString();
+            QString account = receiverjsonObject["account"].toString();//同意者
+            QString friend_account = receiverjsonObject["friend_account"].toString();//申请者
             qDebug() << "account:" << account << "friend_account:" << friend_account;
-
             QSqlQuery query;
             query.prepare("UPDATE friendships SET status = 1 WHERE user1_account = ? AND user2_account = ?;");
             query.addBindValue(friend_account);
             query.addBindValue(account);
-
             if (query.exec()) {
                 qDebug() << "Agree_the_friend" << query.lastQuery();
-                findallfriend(account, response); // 调用 findallfriend 函数更新好友列表
+                find(account,response);
+                //向申请者发送信息
+                auto it = threadInfo.find(friend_account);
+                if (it != threadInfo.end()) {
+                    qDebug() << friend_account<<"在线";
+                    Mythread* f_thread = it.value();
+                    QTcpSocket* f_socket=f_thread->getSocket();
+                    QJsonObject f_response;
+                    find(friend_account,f_response);
+                    sendToClient(f_socket,f_response);
+                } else {
+                    qDebug() << friend_account<<"未在线";
+                }
             } else {
                 qDebug() << "Update failed:" << query.lastError().text(); // 打印详细的错误信息
             }
-
             qDebug() << "Agree_the_friend" << query.lastQuery();
         }else if (type=="Refuse_the_friend"||type=="Delete_the_friend"){
             QString account = receiverjsonObject["account"].toString();
@@ -395,7 +435,19 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
 
             if (query.exec()) {
                 qDebug() << "Delete successful";
-                findallfriend(account, response); // 调用 findallfriend 函数更新好友列表
+                find(account,response);
+                //向申请者发送信息
+                auto it = threadInfo.find(friend_account);
+                if (it != threadInfo.end()) {
+                    qDebug() << friend_account<<"在线";
+                    Mythread* f_thread = it.value();
+                    QTcpSocket* f_socket=f_thread->getSocket();
+                    QJsonObject f_response;
+                    find(friend_account,f_response);
+                    sendToClient(f_socket,f_response);
+                } else {
+                    qDebug() << friend_account<<"未在线";
+                }
             } else {
                 qDebug() << "Delete failed:" << query.lastError().text(); // 打印详细的错误信息
             }
@@ -405,7 +457,7 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
             QString to = receiverjsonObject["to"].toString();
             qDebug() << "to_user:::" << from << to;
             QString content = receiverjsonObject["content"].toString();
-            QString time = receiverjsonObject["time"].toString(); // 可以加时间字段
+            QString time = receiverjsonObject["time"].toString();
 
             QJsonObject chatData;
             chatData["type"] = "chat_message";
@@ -520,9 +572,7 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
         }
 
     }
-    responseData = QJsonDocument(response).toJson();
-    socket->write(responseData);
-    qDebug()<<"发送的信息:"<<responseData;
+    sendToClient(socket,response);
 }
 void Server ::disClient(QByteArray byte,Mythread *t){
     QString message =QString(byte);
