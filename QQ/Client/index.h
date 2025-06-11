@@ -11,6 +11,7 @@
 #include "friendmanagement.h"
 #include "chatwindow.h"
 #include "creategroup.h"
+#include <QTimer>
 namespace Ui {
 class Index;
 }
@@ -62,6 +63,7 @@ private:
     void addGroupItem(const QJsonObject &js);
     void updateG(QString account);
     void updateF(QString account);
+    QTimer *timer;
 signals:
     void sendToAF(QJsonObject jsonobject);//发送给AF
     void sendToFM(QJsonObject jsonobject);

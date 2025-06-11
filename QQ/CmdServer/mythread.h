@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QHostAddress>
 class Mythread : public QThread
 {
     Q_OBJECT

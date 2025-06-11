@@ -23,9 +23,11 @@ public:
     bool isAccountExists(QString account);
     void findallfriend(const QString &account,QJsonObject &response);
     QString crypassword(QString password);
-    bool insertFrinend(QString ,QString,int);
+    bool insertFriend(QString ,QString,int);
     ~Server();
     void setPrintInterval(int seconds); // 添加设置打印间隔的方法
+    void initDatabaseTables();
+    void checkTableExists(const QString &tableName);
 public slots:
     void newClient();
     void newMessageReciver(QByteArray byte,Mythread *currentThread);

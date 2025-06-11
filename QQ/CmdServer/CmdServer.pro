@@ -11,10 +11,8 @@ SOURCES += \
         mythread.cpp \
         server.cpp
 
-TRANSLATIONS += \
-    CmdServer_zh_CN.ts
+TRANSLATIONS +=
 CONFIG += lrelease
-CONFIG += embed_translations
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

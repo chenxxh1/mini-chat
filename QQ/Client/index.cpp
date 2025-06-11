@@ -19,7 +19,7 @@ Index::Index(QTcpSocket *s,QJsonObject js,QWidget *parent)
     nickname=js["nickname"].toString();
     fm=new FriendManagement(socket,jsonOb,this);
     connect(this,&Index::sendToFM,fm,&FriendManagement::fromIN);
-    updateG(account);
+    //updateG(account);
     //updateF(account);
     connect(ui->closeButton,&QToolButton::clicked,this,&Index::closeButtonC);
     setWindowFlag(Qt::FramelessWindowHint);

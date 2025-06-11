@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->installEventFilter(new DragEvent(this));
     connect(ui->CloseButton,&QToolButton::clicked,this,&MainWindow::on_CloseButton_triggered);
     socket =new QTcpSocket;
-    socket->connectToHost("127.0.0.1",8000);
+    socket->connectToHost("47.98.99.231",8000);
     connect(socket,&QTcpSocket::connected,this,[this](){
         QMessageBox::information(this,"提示","连接服务器成功");
     });
