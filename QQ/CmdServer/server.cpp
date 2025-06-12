@@ -24,9 +24,15 @@ Server::Server (QObject *parent)
     setPrintInterval(30);
     initDatabaseTables();
 
-
+    QSqlQuery query;
+    query.prepare("select * from users;");
+    if(query.exec()){
+        qDebug()<<"all users:";
+        while(query.next()){
+            qDebug()<<query.value(0)<<query.value(1)<<query.value(2);
+        }
+    }
 }
-//数据表的初始化
 void Server::initDatabaseTables() {
     QSqlQuery query;
 
@@ -53,7 +59,7 @@ void Server::initDatabaseTables() {
     checkTableExists("friendships");
     checkTableExists("messages");
 }
-//检查表是否存在
+
 void Server::checkTableExists(const QString &tableName) {
     QSqlQuery checkQuery;
     QString checkQueryStr = QString("SELECT name FROM sqlite_master WHERE type='table' AND name='%1'")
@@ -67,7 +73,7 @@ void Server::checkTableExists(const QString &tableName) {
         qDebug() << "Table '" << tableName << "' does not exist.";
     }
 }
-//设置时间间隔
+
 void Server::setPrintInterval(const int &seconds)
 {
     if (seconds > 0) {
@@ -87,19 +93,19 @@ Server ::~Server ()
         delete i.value();
     }
 }
-//判断账户是否存在
+
 bool Server ::isAccountExists(const QString& account){
     QSqlQuery ifaccountexits;
-    ifaccountexits.prepare("SELECT 1 FROM users WHERE account = :account"); // 查询常量值1
+    ifaccountexits.prepare("SELECT 1 FROM users WHERE account = :account");
     ifaccountexits.bindValue(":account", account);
     if(ifaccountexits.exec()){
-        return ifaccountexits.next(); // 如果找到了匹配的记录，返回 1，否则返回 空 即为假
+        return ifaccountexits.next();
     } else {
-        qDebug() << "Query failed:" << ifaccountexits.lastError().text(); // 记录错误信息
-        return false; // 查询失败，返回 false
+        qDebug() << "Query failed:" << ifaccountexits.lastError().text();
+        return false;
     }
 }
-//查询好友
+
 QJsonArray Server::findallfriend(const QString &account)
 {
     qDebug()<<"账号："<<account;
@@ -116,7 +122,6 @@ QJsonArray Server::findallfriend(const QString &account)
             QSqlQuery qu;
             QString friend_nickname;
 
-            // 查询好友的昵称
             qu.prepare("SELECT nickname FROM users WHERE account = :account");
             qu.bindValue(":account", friend_account);
 
@@ -139,7 +144,7 @@ QJsonArray Server::findallfriend(const QString &account)
 
     return allfriend;
 }
-//查询所有群关系
+
 QJsonArray Server::findallgroup(const QString &account){
     qDebug()<<"账号："<<account;
     qDebug()<<"群列表:";
@@ -173,7 +178,7 @@ QString Server::crypassword(const QString &password)
     RealSha3_384.addData(result);
     result = RealSha3_384.result();
 
-    // 截取前19个字符
+
     QString shortenedResult = QString(result.toHex()).left(19);
 
     return shortenedResult;
@@ -191,7 +196,7 @@ bool Server::insertFriend(const QString &v_account, const QString &account, cons
         qDebug() << "插入成功";
         return true;
     } else {
-        qDebug() << "插入失败：" << query.lastError().text(); // 打印更详细的错误信息
+        qDebug() << "插入失败：" << query.lastError().text();
     }
     return false;
 }
@@ -210,11 +215,11 @@ void Server ::newClient(){
 }
 void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
     QTcpSocket *socket =currentThread->getSocket();
-    //回显数据
+
     QJsonObject response;
 
     QJsonDocument receiverdocument = QJsonDocument::fromJson(byte);
-    //接受到的数据
+
     qDebug()<<"接受的信息:"<<receiverdocument;
     if(!receiverdocument.isNull()&&receiverdocument.isObject()){
         QJsonObject receiverjsonObject =receiverdocument.object();
@@ -228,35 +233,35 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
             query.prepare("SELECT * FROM users WHERE account = :account");
             query.bindValue(":account", account);
             if(query.exec()){
-                response["type"] = "login_response";//消息类型
+                response["type"] = "login_response";
                 if(query.next()){
                     int storeId = query.value(0).toInt();
                     QString storeAccount = query.value(1).toString();
                     QString storePassword = query.value(2).toString();
                     QString snickName = query.value(3).toString();
 
-                    QJsonObject jsonObject;//账号信息
+                    QJsonObject jsonObject;
                     jsonObject["id"] = storeId;
                     jsonObject["account"] = storeAccount;
                     jsonObject["nickname"] = snickName;
                     if(storePassword==password){
-                        //密码正确
+
                         response["status"] = "success";
                         response["message"] = "Login successful";
-                        //将账号信息发送到客户端
+
                         response["account"]=storeAccount;
                         response["nickname"]=snickName;
                         response["id"]=storeId;
                         currentThread->setAccount(storeAccount);
-                        threadInfo[storeAccount]=currentThread;//将登录成功的信息加入线程信息
+                        threadInfo[storeAccount]=currentThread;
                         userSocketMap[storeAccount] = socket;
                     }else{
-                        //密码错误
+
                         response["status"] = "failure";
                         response["message"] = "Incorrect password";
                     }
                 }else{
-                    //无账号
+
                     response["status"] = "failure";
                     response["message"] = "Account not found";
                 }
@@ -264,9 +269,9 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
 
         }else if(type=="register"){
 
-            QString account = QString::number(QRandomGenerator::global()->bounded(static_cast<double>(1000000000000LL)) + 10000000, 'f', 0);
+            QString account = QString::number(QRandomGenerator::global()->bounded(static_cast<double>(1000000000LL)) + 10000000, 'f', 0);
             while(isAccountExists(account)){
-                QString account = QString::number(QRandomGenerator::global()->bounded(static_cast<double>(1000000000000LL)) + 10000000, 'f', 0);
+                QString account = QString::number(QRandomGenerator::global()->bounded(static_cast<double>(1000000000LL)) + 10000000, 'f', 0);
             }
             QString nickname =receiverjsonObject.value("nickname").toString();
             QString password = receiverjsonObject.value("password").toString();
@@ -278,22 +283,21 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
             query.addBindValue(password);
             query.addBindValue(nickname);
 
-            // 打印查询语句和绑定的参数，用于调试
             qDebug() << "SQL Query:" << query.lastQuery();
             qDebug() << "Bound Parameters: account=" << account << ", password=" << password << ", nickname=" << nickname;
 
             response["type"] = "register_response";
             if (query.exec()) {
-                //注册成功
+
                 QString successMessage = QString("Registration successful: Account: %1, Nickname: %2").arg(account, nickname);
                 qDebug()<<successMessage;
 
-                // 构造成功响应消息
+
                 response["status"] = "success";
                 response["message"] = "Registration successful";
                 response["account"] = account; // 返回生成的账号
 
-                //将自己与自己建立好友关系
+
                 insertFriend(account,account,1);
             } else {
                 QString errorMessage = QString("Registration failed: Error: %1")
@@ -303,11 +307,10 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
                 response["status"] = "failure";
                 response["message"] = query.lastError().text();
             }
-            //返回注册信息
+
         }else if(type=="addFriend_search"){
             QString message=receiverjsonObject.value("message").toString();
-            //在数据库中搜索
-            //提供两种搜索方式，nickname，account
+
             QSqlQuery query_n;
             query_n.prepare("SELECT account,nickname FROM users WHERE nickname = :message");
             query_n.bindValue(":message", message);
@@ -315,32 +318,32 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
             query_a.prepare("SELECT account,nickname FROM users WHERE account = :message");
             query_a.bindValue(":message", message);
             QJsonArray usersArray;
-            if(query_n.exec()){//通过nickanme搜索
+            if(query_n.exec()){
                 while(query_n.next()){
-                    // 获取每一行的数据
+
                     QString account = query_n.value("account").toString();
                     QString nickname = query_n.value("nickname").toString();
 
-                    // 创建一个 JSON 对象表示一个用户
+
                     QJsonObject userObject;
                     userObject["account"] = account;
                     userObject["nickname"] = nickname;
 
-                    // 将用户对象添加到数组中
+
                     usersArray.append(userObject);
                 }
             }
             if (query_a.exec()) {
                 while (query_a.next()) {
-                    // 获取每一行的数据
+
                     QString account = query_a.value("account").toString();
                     QString nickname = query_a.value("nickname").toString();
-                    // 创建一个 JSON 对象表示一个用户
+
                     QJsonObject userObject;
                     userObject["account"] = account;
                     userObject["nickname"] = nickname;
 
-                    // 将用户对象添加到数组中
+
                     usersArray.append(userObject);
                 }
             }
@@ -362,7 +365,7 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
 
             if (query.exec()) {
                 if (query.next()) {
-                    int is_friend = query.value(0).toInt(); // 注意这里使用 int 而不是 bool
+                    int is_friend = query.value(0).toInt();
                     if (is_friend > 0) {
                         response["result"] = "is friend";
                     } else {
@@ -374,14 +377,14 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
             }
         }else if(type=="friend_request"){
             response["type"]="friend_request_response";
-            QString v_account=receiverjsonObject["v_account"].toString();//申请者
-            QString account=receiverjsonObject["account"].toString();//被申请者
+            QString v_account=receiverjsonObject["v_account"].toString();
+            QString account=receiverjsonObject["account"].toString();
             if(insertFriend(v_account,account,0)){
                 response["result"]="insert_successed";
             }else{
                 response["result"]="insert_not_successed";
             }
-            //向被申请者发送信息
+
             auto it = threadInfo.find(account);
             if (it != threadInfo.end()) {
                 qDebug() << account<<"在线";
@@ -397,8 +400,8 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
             QString account =receiverjsonObject["account"].toString();
             find(account,response);
         }else if(type=="Agree_the_friend"){
-            QString account = receiverjsonObject["account"].toString();//同意者
-            QString friend_account = receiverjsonObject["friend_account"].toString();//申请者
+            QString account = receiverjsonObject["account"].toString();
+            QString friend_account = receiverjsonObject["friend_account"].toString();
             qDebug() << "account:" << account << "friend_account:" << friend_account;
             QSqlQuery query;
             query.prepare("UPDATE friendships SET status = 1 WHERE user1_account = ? AND user2_account = ?;");
@@ -407,7 +410,7 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
             if (query.exec()) {
                 qDebug() << "Agree_the_friend" << query.lastQuery();
                 find(account,response);
-                //向申请者发送信息
+
                 auto it = threadInfo.find(friend_account);
                 if (it != threadInfo.end()) {
                     qDebug() << friend_account<<"在线";
@@ -420,7 +423,7 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
                     qDebug() << friend_account<<"未在线";
                 }
             } else {
-                qDebug() << "Update failed:" << query.lastError().text(); // 打印详细的错误信息
+                qDebug() << "Update failed:" << query.lastError().text();
             }
             qDebug() << "Agree_the_friend" << query.lastQuery();
         }else if (type=="Refuse_the_friend"||type=="Delete_the_friend"){
@@ -436,7 +439,7 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
             if (query.exec()) {
                 qDebug() << "Delete successful";
                 find(account,response);
-                //向申请者发送信息
+
                 auto it = threadInfo.find(friend_account);
                 if (it != threadInfo.end()) {
                     qDebug() << friend_account<<"在线";
@@ -449,7 +452,7 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
                     qDebug() << friend_account<<"未在线";
                 }
             } else {
-                qDebug() << "Delete failed:" << query.lastError().text(); // 打印详细的错误信息
+                qDebug() << "Delete failed:" << query.lastError().text();
             }
         }
         else if(type == "chat_message"){
@@ -469,7 +472,7 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
             QJsonDocument doc(chatData);
             QByteArray data = doc.toJson();
 
-            // 保存聊天记录到数据库
+
             QSqlQuery saveChat;
             saveChat.prepare("INSERT INTO messages (sender, receiver, content, time) VALUES (:from, :to, :content, :time)");
             saveChat.bindValue(":from", from);
@@ -483,12 +486,12 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
                 qDebug() << "Message saved successfully";
             }
 
-            // 根据接收方是否在线决定是否转发消息
+
             if (userSocketMap.contains(to)) {
-                userSocketMap[to]->write(data); // 转发给对方
+                userSocketMap[to]->write(data);
                 response["status"] = "sent";
             } else {
-                response["status"] = "offline"; // 对方不在线
+                response["status"] = "offline";
             }
         }
         else if(type == "get_history") {
@@ -502,7 +505,7 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
             query.bindValue(":a1", a1);
             query.bindValue(":a2", a2);
 
-            //查看账号对应的昵称
+
             QMap<QString, QString> nicknameMap;
             QSqlQuery nicknameQuery;
             nicknameQuery.prepare("SELECT account, nickname FROM users WHERE account = :a1 OR account = :a2");
@@ -538,7 +541,7 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
             QString groupName = receiverjsonObject["group_name"].toString();
             QString ownerAccount = receiverjsonObject["owner_account"].toString();
 
-            // 创建群组
+
             QSqlQuery query;
             query.prepare("INSERT INTO `groups` (group_name, owner_account) VALUES (:group_name, :owner_account)");
             query.bindValue(":group_name", groupName);
@@ -549,7 +552,7 @@ void Server ::newMessageReciver(QByteArray byte,Mythread *currentThread){
             if (query.exec()) {
                 qint64 groupId = query.lastInsertId().toLongLong();
 
-                // 插入群主到群成员表，role设为'owner'
+
                 QSqlQuery addMember;
                 addMember.prepare("INSERT INTO group_members (group_id, account, role) VALUES (:group_id, :account, 'owner')");
                 addMember.bindValue(":group_id", groupId);
@@ -580,7 +583,7 @@ void Server ::disClient(QByteArray byte,Mythread *t){
     QString account =t->getAccount();
     threadInfo.remove(account);
     userSocketMap.remove(account);
-    //qDebug()<<account;
+
 }
 
 void Server::printOnlineAccounts()

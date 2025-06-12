@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 #include "dragevent.h"
 #include "registerwindow.h"
-const QString publicIp = "47.111.134.228"; // 替换为你的公网 IP
+const QString publicIp = "47.111.134.228"; // 公网 IP
 const QString localIp = "127.0.0.1";   // 本地 IP
 const int port = 8000;                 // 端口号
 MainWindow::MainWindow(QWidget *parent)
@@ -23,33 +23,36 @@ MainWindow::MainWindow(QWidget *parent)
 }
 void MainWindow::connectToServer() {
     // 尝试连接公网 IP
-<<<<<<< HEAD
-    socket->connectToHost(localIp, port);
-=======
-    socket->connectToHost("127.0.0.1", port);
->>>>>>> 3322708fd817ab11eea18eac79f1fd3e6934b378
+    socket->connectToHost(publicIp, port);
 
     // 连接成功时的处理
     connect(socket, &QTcpSocket::connected, this, [this](){
         QMessageBox::information(this, "提示", "连接服务器成功");
     });
 
-    //接失败时的处理
+    // 连接失败时的处理
     connect(socket, &QTcpSocket::errorOccurred, this, [this](QAbstractSocket::SocketError socketError){
         if (socketError == QAbstractSocket::ConnectionRefusedError) {
-            // 如果连接公网 IP 失败，尝试连接本地 IP
+            QMessageBox::critical(this, "错误", "远程服务器未开启，请联系开发人员或自行部署远程服务器后重新连接。正在尝试连接本地测试服务器。");
             socket->connectToHost(localIp, port);
-            QMessageBox::information(this, "提示", "连接本地服务器成功");
+
+            // 设置一个定时器，等待本地服务器连接结果
+            QTimer::singleShot(5000, this, [this](){
+                if (socket->state() != QTcpSocket::ConnectedState) {
+                    QMessageBox::critical(this, "错误", "连接本地服务器失败。程序将关闭。");
+                    this->close();
+                }
+            });
         } else {
-            // 其他错误，提示用户
-            QMessageBox::warning(this, "警告", "连接服务器失败");
+            QMessageBox::critical(this, "错误", "连接服务器失败：" + socket->errorString());
+            this->close();
         }
     });
-
 
     // 服务器断开连接时的处理
     connect(socket, &QTcpSocket::disconnected, this, [this](){
         QMessageBox::warning(this, "警告", "服务器断开");
+        this->close();
     });
 }
 
@@ -57,7 +60,7 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete r;
-    //delete socket;
+    delete socket;
     delete index;
 }
 void MainWindow::on_aggreButton_clicked()

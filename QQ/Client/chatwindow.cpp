@@ -43,8 +43,8 @@ ChatWindow::ChatWindow(QTcpSocket *socket, const QString &selfAccount, const QSt
         ui->FriendName->setText(friendName);
     }
     qDebug() << "to_user:::" << selfAccount << friendAccount;
-    loadHistoryFromLocal(); // 先加载本地记录
-    getHistory();           // 再请求服务器更新
+    loadHistoryFromLocal();
+    getHistory();
 
     connect(ui->close,&QToolButton::clicked,this,&ChatWindow::on_close_triggered);
     connect(ui->SendButton, &QPushButton::clicked, this, &ChatWindow::on_SendButton_clicked);
@@ -54,8 +54,8 @@ bool ChatWindow::eventFilter(QObject *obj, QEvent *event) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         if ((keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) &&
             keyEvent->modifiers() == Qt::NoModifier) {
-            emit on_SendButton_clicked(); // 触发发送
-            return true; // 阻止默认换行行为
+            emit on_SendButton_clicked();
+            return true;
         }
     }
     return QWidget::eventFilter(obj, event);
@@ -67,10 +67,7 @@ ChatWindow::~ChatWindow()
     delete ui;
 }
 
-void ChatWindow::run()
-{
 
-}
 
 void ChatWindow::on_SendButton_clicked()
 {
@@ -93,7 +90,7 @@ void ChatWindow::on_SendButton_clicked()
     QString messageLine =  text;
     addMessageToList(messageLine, "皇帝",true);
     ui->EditArea->clear();
-    saveMessageToLocal(object); // 发送的消息
+    saveMessageToLocal(object);
 }
 
 void ChatWindow::receiveMessage(const QJsonObject &js) {
@@ -103,7 +100,7 @@ void ChatWindow::receiveMessage(const QJsonObject &js) {
         QString content = js["content"].toString();
         QString messageLine = content;
         addMessageToList(messageLine, js["name"].toString(),false);
-        saveMessageToLocal(js);     // 接收的消息
+        saveMessageToLocal(js);
     }
 }
 
@@ -120,7 +117,7 @@ void ChatWindow::onReadyRead(QJsonObject jsonobject)
         QJsonArray history = jsonobject["messages"].toArray();
         for (const QJsonValue &val : history) {
             QJsonObject msg = val.toObject();
-            processNewMessage(msg);  // 统一处理
+            processNewMessage(msg);
         }
     }
 }
@@ -143,13 +140,13 @@ void ChatWindow::getHistory()
 
 void ChatWindow::addMessageToList(const QString &text, const QString &name, bool isOwnMessage)
 {
-    // 创建一个新的 QWidget 容器，包含名字标签和消息气泡
+
     QWidget *container = new QWidget;
     QVBoxLayout *layout = new QVBoxLayout(container);
     layout->setSpacing(2);
     layout->setContentsMargins(10, 0, 10, 0);
 
-    // 名字标签
+
     QLabel *nameLabel = new QLabel(name);
     nameLabel->setStyleSheet("color: gray; font-size: 10px;");
     if (isOwnMessage) {
@@ -158,14 +155,14 @@ void ChatWindow::addMessageToList(const QString &text, const QString &name, bool
         nameLabel->setAlignment(Qt::AlignLeft);
     }
 
-    // 消息气泡
+
     MessageBubbleWidget *bubble = new MessageBubbleWidget(text, isOwnMessage);
 
-    // 添加到布局
+
     layout->addWidget(nameLabel);
     layout->addWidget(bubble);
 
-    // 设置 QListWidgetItem
+
     QListWidgetItem *item = new QListWidgetItem(ui->MessageListWidget);
     item->setSizeHint(container->sizeHint());
 
@@ -191,16 +188,16 @@ QWidget* ChatWindow::createTimeLabel(const QString &time)
 QString ChatWindow::getHistoryFilePath() const {
     QString filename = QString("%1_%2.json").arg(selfAccount).arg(friendAccount);
 
-    // 获取当前可执行文件所在目录
+
     QString currentPath = QDir::currentPath();
     QString dirPath = currentPath + "/chat_history";
     QDir dir;
 
-    // 创建 chat_history 目录（如果不存在）
+
     if (!dir.exists(dirPath)) {
         qDebug() << "正在创建目录：" << dirPath;
         if (!dir.mkpath(dirPath)) {
-            qDebug() << "❌ 创建目录失败！";
+            qDebug() << "创建目录失败！";
         }
     }
 
@@ -216,9 +213,9 @@ void ChatWindow::saveMessageToLocal(const QJsonObject &msg) {
     QFile file(filePath);
     QJsonArray historyArray;
 
-    // 如果文件存在，读取已有内容
+
     if (file.exists()) {
-        qDebug() << "✅ 文件已存在，尝试读取历史记录...";
+        qDebug() << "文件已存在，尝试读取历史记录...";
         if (file.open(QIODevice::ReadOnly)) {
             QByteArray data = file.readAll();
             QJsonDocument doc = QJsonDocument::fromJson(data);
@@ -229,7 +226,7 @@ void ChatWindow::saveMessageToLocal(const QJsonObject &msg) {
         }
     }
 
-    // 过滤重复消息
+
     QString messageId = msg["id"].toString();
     if (messageId.isEmpty()) {
         QString content = msg["content"].toString();
@@ -282,7 +279,7 @@ void ChatWindow::loadHistoryFromLocal() {
             QJsonArray history = doc.array();
             for (const QJsonValue &val : history) {
                 QJsonObject msg = val.toObject();
-                processNewMessage(msg);  // 使用统一处理函数
+                processNewMessage(msg);
             }
         }
         file.close();
@@ -290,9 +287,9 @@ void ChatWindow::loadHistoryFromLocal() {
 }
 
 void ChatWindow::processNewMessage(const QJsonObject &msg) {
-    QString messageId = msg["id"].toString();  // 假设每条消息都有唯一的 id 字段
+    QString messageId = msg["id"].toString();
     if (messageId.isEmpty()) {
-        // 如果没有 id，就用时间戳 + 内容生成唯一标识
+
         QString content = msg["content"].toString();
         QString time = msg["time"].toString();
         messageId = QString("%1_%2").arg(time).arg(content);
@@ -306,8 +303,7 @@ void ChatWindow::processNewMessage(const QJsonObject &msg) {
 
         QDateTime timestamp = QDateTime::fromString(msg["time"].toString(), "yyyy-MM-dd HH:mm:ss");
 
-        // 添加时间标签（如果需要）
-        const int TIME_THRESHOLD_SECONDS = 1800; // 半小时
+
         if (lastMessageTime.isNull() ||
             lastMessageTime.date() != timestamp.date() ||
             lastMessageTime.secsTo(timestamp) > TIME_THRESHOLD_SECONDS) {
@@ -318,16 +314,16 @@ void ChatWindow::processNewMessage(const QJsonObject &msg) {
             ui->MessageListWidget->setItemWidget(item, timeWidget);
         }
 
-        // 添加消息到 UI
+
         addMessageToList(content, name, isOwn);
 
-        // 保存到本地
+
         saveMessageToLocal(msg);
 
-        // 将消息加入缓存
+
         messageCache.insert(messageId);
 
-        // 更新最后一条消息的时间
+
         lastMessageTime = timestamp;
     } else {
         qDebug() << " 消息已存在，跳过：" << messageId;
