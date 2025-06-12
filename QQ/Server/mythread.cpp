@@ -11,7 +11,7 @@ void Mythread::run(){
 void Mythread::clientInfo(){
     QByteArray byte =socket->readAll();
     //qDebug()<<byte;
-    emit sendToWidget(byte,this);//将信息与socket发送到主线程,同时加上线程指针，用于传输
+    emit sendToserver(byte,this);//将信息与socket发送到主线程,同时加上线程指针，用于传输
     //当前线程的一些信息,以便判断所属客户端
 }
 void Mythread::handleDisconnected(){

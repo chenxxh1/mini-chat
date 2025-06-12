@@ -14,6 +14,7 @@
 #include <mythread.h>
 #include <QMap>
 #include <QCryptographicHash>
+#include <QTimer>
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class Widget;
@@ -28,17 +29,19 @@ public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
     bool isAccountExists(QString account);//查询账号是否存在
-    void findallfriend(const QString &account,QJsonObject &response);
-    void findallgroup(const QString &account,QJsonObject &response);
-    QString crypassword(QString password);
-    bool insertFrinend(QString ,QString,int);
+    QJsonArray findallfriend(const QString &accounte);
+    QJsonArray findallgroup(const QString &account);
+    QString crypassword(const QString& password);
+    bool insertFriend(const QString &v_account, const QString &account, const int &status);
+    void setPrintInterval(const int &seconds);
+    void find(const QString &account,QJsonObject &response);
+    void sendToClient(QTcpSocket *socket, const QJsonObject &response);
+    void printOnlineAccounts();
 public slots:
     void newClient();
     void newMessageReciver(QByteArray byte,Mythread *currentThread);//处理信息
     void disClient(QByteArray byte,Mythread *t);
 
-private slots:
-    void on_accountpushButton_clicked();
 
 private:
     Ui::Widget *ui;
@@ -46,5 +49,6 @@ private:
     QSqlDatabase db;
     QMap<QString,Mythread*>threadInfo;
     QMap<QString, QTcpSocket*> userSocketMap;
+    QTimer *timer;
 };
 #endif // WIDGET_H
