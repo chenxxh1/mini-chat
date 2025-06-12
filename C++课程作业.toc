@@ -1,0 +1,11 @@
+\contentsline {section}{\numberline {1}程序说明}{2}{}%
+\contentsline {section}{\numberline {2}程序分析}{2}{}%
+\contentsline {subsection}{\numberline {2.1}功能需求}{2}{}%
+\contentsline {subsection}{\numberline {2.2}性能需求}{2}{}%
+\contentsline {section}{\numberline {3}程序设计}{2}{}%
+\contentsline {subsection}{\numberline {3.1}设计思路}{2}{}%
+\contentsline {subsection}{\numberline {3.2}数据库设计}{3}{}%
+\contentsline {subsubsection}{\numberline {3.2.1}用户表（\texttt {users}）}{3}{}%
+\contentsline {subsubsection}{\numberline {3.2.2}好友关系表（\texttt {friendships}）}{4}{}%
+\contentsline {subsubsection}{\numberline {3.2.3}消息表（\texttt {messages}）}{4}{}%
+\contentsline {section}{\numberline {4}类与函数设计}{4}{}%

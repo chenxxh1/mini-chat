@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 void MainWindow::connectToServer() {
     // 尝试连接公网 IP
-    socket->connectToHost(publicIp, port);
+    socket->connectToHost(localIp, port);
 
     // 连接成功时的处理
     connect(socket, &QTcpSocket::connected, this, [this](){
